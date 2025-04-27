@@ -1,19 +1,22 @@
 package com.example.worldchangingcookingapp.models
 
+import java.util.UUID
+import kotlin.time.Duration
+
 data class Recipe(
-    var id: Long = 0L,
+    var id: UUID,
     var title: String,
     var publicationDate: String,
     var difficulty: Difficulty, //enum Difficulty
     var price: Price,
     var typeOfRecipe: TypeOfRecipe,
-    var numberOfPeople: Double,
-    var preparationTime: Double, //probably string ? see after
-    var cookingTime: Double, //probably string ? see after
-    var restingTime: Double? = null, //probably string ? see after
+    var numberOfPeople: Int,
+    var preparationTime: Duration, //probably string ? see after
+    var cookingTime: Duration, //probably string ? see after
+    var restingTime: Duration, //probably string ? see after
     var cookingType: CookingType,
     var posterPath: String,
     var ingredients: List<Ingredients>,
-    var recipePreparation: String,
+    var steps: List<String>,
     var moreInformation: String,
 )
