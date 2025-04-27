@@ -67,7 +67,7 @@ class ListField<T, E : ListItem<T>>(
     fun updateComposableValue() {
         this.value.clear()
         @Suppress("UNCHECKED_CAST")
-        this.value.addAll(fieldState.state.toList() as Collection<E?>)
+        this.value.addAll(fieldState.state.toList())
     }
 
     @Composable
