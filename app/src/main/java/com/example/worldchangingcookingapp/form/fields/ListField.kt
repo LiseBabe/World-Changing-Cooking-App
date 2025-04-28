@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import ch.benlu.composeform.*
 import com.example.worldchangingcookingapp.form.ListFieldState
+import com.example.worldchangingcookingapp.ui.theme.WorldChangingCookingAppTheme
 
 interface ListItem<T> {
     var state : MutableState<T>
@@ -82,7 +83,8 @@ class ListField<T, E : ListItem<T>>(
             fieldState.state.forEachIndexed { index, listItem ->
                 Row {
                     listItem.ElementBuilder(
-                        modifier = modifier?.weight(1f)?.align(Alignment.CenterVertically) ?: Modifier
+                        modifier = modifier?.weight(1f)?.align(Alignment.CenterVertically)
+                            ?: Modifier
                     )
                     IconButton(
                         onClick = {

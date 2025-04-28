@@ -13,6 +13,7 @@ import ch.benlu.composeform.fields.PickerField
 import ch.benlu.composeform.fields.TextField
 import com.example.worldchangingcookingapp.form.RecipeFormViewModel
 import com.example.worldchangingcookingapp.form.StepItemFactory
+import com.example.worldchangingcookingapp.form.fields.DurationField
 import com.example.worldchangingcookingapp.form.fields.ListField
 import com.example.worldchangingcookingapp.models.CookingType
 import com.example.worldchangingcookingapp.models.Recipe
@@ -22,6 +23,7 @@ import com.example.worldchangingcookingapp.models.IngredientItemFactory
 import com.example.worldchangingcookingapp.models.Ingredients
 import com.example.worldchangingcookingapp.models.Price
 import com.example.worldchangingcookingapp.models.TypeOfRecipe
+import com.example.worldchangingcookingapp.ui.theme.WorldChangingCookingAppTheme
 import java.util.UUID
 import kotlin.time.Duration.Companion.minutes
 
@@ -89,6 +91,24 @@ fun CreateRecipeScreen(formModel : RecipeFormViewModel, recipe: Recipe = blankRe
             form = formModel.form,
             fieldState = formModel.form.cookingType,
             isSearchable = false
+        ).Field()
+
+        DurationField(
+            label = "Preparation Time",
+            form = formModel.form,
+            fieldState = formModel.form.preparationTime
+        ).Field()
+
+        DurationField(
+            label = "Cooking Time",
+            form = formModel.form,
+            fieldState = formModel.form.cookingTime
+        ).Field()
+
+        DurationField(
+            label = "Resting Time",
+            form = formModel.form,
+            fieldState = formModel.form.restingTime
         ).Field()
 
         ListField(

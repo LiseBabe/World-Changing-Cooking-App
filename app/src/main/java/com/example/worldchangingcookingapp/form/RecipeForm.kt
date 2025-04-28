@@ -1,15 +1,29 @@
 package com.example.worldchangingcookingapp.form
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import ch.benlu.composeform.*
 import ch.benlu.composeform.fields.PickerValue
 import ch.benlu.composeform.validators.MinLengthValidator
@@ -21,11 +35,12 @@ import com.example.worldchangingcookingapp.models.CookingTypePicker
 import com.example.worldchangingcookingapp.models.Difficulty
 import com.example.worldchangingcookingapp.models.DifficultyPicker
 import com.example.worldchangingcookingapp.models.IngredientItem
-import com.example.worldchangingcookingapp.models.Ingredients
 import com.example.worldchangingcookingapp.models.Price
 import com.example.worldchangingcookingapp.models.PricePicker
 import com.example.worldchangingcookingapp.models.RecipeTypePicker
 import com.example.worldchangingcookingapp.models.TypeOfRecipe
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 data class NumberPicker (
     val value: Int
@@ -38,8 +53,41 @@ data class NumberPicker (
 class StepItem(override var state: MutableState<String>) : ListItem<String> {
     @Composable
     override fun ElementBuilder(modifier: Modifier) {
-        OutlinedCard (modifier = modifier.fillMaxWidth()) {
+
+        var isDialogVisible by remember { mutableStateOf(false) }
+
+        OutlinedCard (
+            onClick = { isDialogVisible = !isDialogVisible },
+            modifier = modifier.fillMaxWidth()) {
             Text (text = state.value, modifier = Modifier.padding(8.dp))
+        }
+
+        if (isDialogVisible) {
+            var content = remember { mutableStateOf(state.value) }
+            Dialog(onDismissRequest = {
+                state.value = content.value
+                isDialogVisible = false
+            }) {
+                Surface (
+                    modifier = Modifier.width(350.dp).height(450.dp),
+                    shape = RoundedCornerShape(10.dp)
+                    )
+                {
+                    Column (horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = "Create Step",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.headlineMedium,
+                            modifier = Modifier.padding(top = 8.dp))
+                        TextField(
+                            value = content.value,
+                            onValueChange = { content.value = it },
+                            modifier = Modifier.padding(12.dp).fillMaxSize()
+                        )
+                    }
+
+                }
+
+            }
         }
     }
 }
@@ -127,9 +175,24 @@ class RecipeForm : Form() {
             NotEmptyValidator()
         )
     )
-//    var preparationTime: Duration, //probably string ? see after
-//    var cookingTime: Duration, //probably string ? see after
-//    var restingTime: Duration, //probably string ? see after
+    var preparationTime = FieldState(
+        state = mutableStateOf<Duration?>(null),
+        validators = mutableListOf(
+            NotEmptyValidator()
+        )
+    )
+    var cookingTime = FieldState(
+        state = mutableStateOf<Duration?>(null),
+        validators = mutableListOf(
+            NotEmptyValidator()
+        )
+    )
+    var restingTime = FieldState(
+        state = mutableStateOf<Duration?>(null),
+        validators = mutableListOf(
+            NotEmptyValidator()
+        )
+    )
     @FormField
     val cookingType = FieldState(
         state = mutableStateOf(null),
