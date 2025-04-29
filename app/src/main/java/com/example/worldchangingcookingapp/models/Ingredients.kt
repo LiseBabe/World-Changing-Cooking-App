@@ -2,6 +2,7 @@ package com.example.worldchangingcookingapp.models
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -10,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -21,10 +23,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import ch.benlu.composeform.components.TextFieldComponent
 import com.example.worldchangingcookingapp.form.fields.ListItem
 import com.example.worldchangingcookingapp.form.fields.ListItemFactory
 
@@ -40,23 +47,25 @@ class IngredientItem(override var state: MutableState<Ingredients>) : ListItem<I
     override fun ElementBuilder(modifier: Modifier) {
 
         var isDialogVisible by remember { mutableStateOf(false) }
+        val focusRequester = FocusRequester()
+        val focusManager = LocalFocusManager.current
 
-        OutlinedCard (
-            onClick = { isDialogVisible = !isDialogVisible },
-            modifier = modifier.fillMaxWidth()
-        ) {
-            Row {
-                Text(text = state.value.quantity.toString(), modifier = Modifier.padding(8.dp))
-                Text(text = state.value.unit, modifier = Modifier.padding(8.dp))
-                Text(text = state.value.name, modifier = Modifier.padding(8.dp))
-            }
-        }
+        OutlinedTextField(
+            modifier = modifier
+                .focusRequester(focusRequester)
+                .onFocusChanged { isDialogVisible = it.isFocused },
+            value = "${state.value.quantity}${state.value.unit} ${state.value.name}",
+            readOnly = true,
+            onValueChange = {}
+        )
+
 
         if (isDialogVisible) {
             var content = remember { mutableStateOf(state.value) }
             Dialog(onDismissRequest = {
                 state.value = content.value
                 isDialogVisible = false
+                focusManager.clearFocus()
             }) {
                 Surface (
                     modifier = Modifier.width(350.dp).height(450.dp),
@@ -68,7 +77,7 @@ class IngredientItem(override var state: MutableState<Ingredients>) : ListItem<I
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.headlineMedium,
                             modifier = Modifier.padding(top = 8.dp))
-                        TextField(
+                        OutlinedTextField(
                             value = content.value.name,
                             label = { Text(text = "Name") },
                             singleLine = true,
@@ -79,7 +88,7 @@ class IngredientItem(override var state: MutableState<Ingredients>) : ListItem<I
                                 content.value.moreInformation)
                             }
                         )
-                        TextField(
+                        OutlinedTextField(
                             value = content.value.unit,
                             label = { Text(text = "Unit") },
                             singleLine = true,
@@ -90,7 +99,7 @@ class IngredientItem(override var state: MutableState<Ingredients>) : ListItem<I
                                     content.value.moreInformation)
                             }
                         )
-                        TextField(
+                        OutlinedTextField(
                             value = content.value.quantity.toString(),
                             label = { Text(text = "Quantity") },
                             singleLine = true,
@@ -108,7 +117,7 @@ class IngredientItem(override var state: MutableState<Ingredients>) : ListItem<I
                                     content.value.moreInformation)
                             }
                         )
-                        TextField(
+                        OutlinedTextField(
                             value = content.value.moreInformation,
                             label = { Text(text = "Addition Information") },
                             singleLine = true,
@@ -120,9 +129,7 @@ class IngredientItem(override var state: MutableState<Ingredients>) : ListItem<I
                             }
                         )
                     }
-
                 }
-
             }
         }
     }

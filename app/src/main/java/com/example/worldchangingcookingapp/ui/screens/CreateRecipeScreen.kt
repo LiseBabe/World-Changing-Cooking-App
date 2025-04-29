@@ -14,6 +14,7 @@ import ch.benlu.composeform.fields.TextField
 import com.example.worldchangingcookingapp.form.RecipeFormViewModel
 import com.example.worldchangingcookingapp.form.StepItemFactory
 import com.example.worldchangingcookingapp.form.fields.DurationField
+import com.example.worldchangingcookingapp.form.fields.LargeTextField
 import com.example.worldchangingcookingapp.form.fields.ListField
 import com.example.worldchangingcookingapp.models.CookingType
 import com.example.worldchangingcookingapp.models.Recipe
@@ -123,6 +124,13 @@ fun CreateRecipeScreen(formModel : RecipeFormViewModel, recipe: Recipe = blankRe
             form = formModel.form,
             fieldState = formModel.form.steps,
             itemFactory = StepItemFactory()
+        ).Field()
+
+        LargeTextField(
+            label = "Additional Info",
+            form = formModel.form,
+            fieldState = formModel.form.moreInformation,
+            popUpTitle = "Additional Info"
         ).Field()
 
     }

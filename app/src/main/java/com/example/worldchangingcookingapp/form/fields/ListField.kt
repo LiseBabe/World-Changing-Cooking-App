@@ -2,6 +2,7 @@ package com.example.worldchangingcookingapp.form.fields
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -73,18 +74,17 @@ class ListField<T, E : ListItem<T>>(
 
     @Composable
     fun Field() {
-        // (1) update & check visibility
         this.updateComposableValue()
         if(!fieldState.isVisible()) return
 
-        // (2) render your composable -----------------
         Column(modifier = modifier ?: Modifier) {
-            Text(label)
+            Text(text = label,
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp))
             fieldState.state.forEachIndexed { index, listItem ->
                 Row {
                     listItem.ElementBuilder(
-                        modifier = modifier?.weight(1f)?.align(Alignment.CenterVertically)
-                            ?: Modifier
+                        modifier = Modifier.weight(1f).align(Alignment.CenterVertically)
                     )
                     IconButton(
                         onClick = {
@@ -95,6 +95,7 @@ class ListField<T, E : ListItem<T>>(
                         Icon(Icons.Filled.Delete, contentDescription = "Delete List Item")
                     }
                 }
+                Spacer(Modifier.padding(4.dp))
             }
 
             IconButton(

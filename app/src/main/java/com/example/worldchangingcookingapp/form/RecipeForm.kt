@@ -1,6 +1,8 @@
 package com.example.worldchangingcookingapp.form
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -21,13 +24,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import ch.benlu.composeform.*
+import ch.benlu.composeform.components.TextFieldComponent
 import ch.benlu.composeform.fields.PickerValue
 import ch.benlu.composeform.validators.MinLengthValidator
 import ch.benlu.composeform.validators.NotEmptyValidator
+import com.example.worldchangingcookingapp.form.fields.LargeTextPopup
 import com.example.worldchangingcookingapp.form.fields.ListItem
 import com.example.worldchangingcookingapp.form.fields.ListItemFactory
 import com.example.worldchangingcookingapp.models.CookingType
@@ -55,39 +64,28 @@ class StepItem(override var state: MutableState<String>) : ListItem<String> {
     override fun ElementBuilder(modifier: Modifier) {
 
         var isDialogVisible by remember { mutableStateOf(false) }
+        val focusRequester = FocusRequester()
+        val focusManager = LocalFocusManager.current
+        OutlinedTextField(
+            modifier = modifier
+                .focusRequester(focusRequester)
+                .onFocusChanged { isDialogVisible = it.isFocused },
+            value = state.value,
+            readOnly = true,
+            onValueChange = {}
+        )
 
-        OutlinedCard (
-            onClick = { isDialogVisible = !isDialogVisible },
-            modifier = modifier.fillMaxWidth()) {
-            Text (text = state.value, modifier = Modifier.padding(8.dp))
-        }
 
         if (isDialogVisible) {
-            var content = remember { mutableStateOf(state.value) }
-            Dialog(onDismissRequest = {
-                state.value = content.value
-                isDialogVisible = false
-            }) {
-                Surface (
-                    modifier = Modifier.width(350.dp).height(450.dp),
-                    shape = RoundedCornerShape(10.dp)
-                    )
-                {
-                    Column (horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(text = "Create Step",
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.headlineMedium,
-                            modifier = Modifier.padding(top = 8.dp))
-                        TextField(
-                            value = content.value,
-                            onValueChange = { content.value = it },
-                            modifier = Modifier.padding(12.dp).fillMaxSize()
-                        )
-                    }
-
-                }
-
-            }
+            LargeTextPopup(
+                initialValue = state.value,
+                callBack = {
+                    state.value = it
+                    isDialogVisible = false
+                    focusManager.clearFocus()
+                },
+                title = "Create Step"
+            )
         }
     }
 }
@@ -222,6 +220,14 @@ class RecipeForm : Form() {
             NotEmptyValidator()
         )
     )
-//    var moreInformation: String,
-
+    val moreInformation = FieldState(
+        state = mutableStateOf(null),
+        validators = mutableListOf(
+            NotEmptyValidator(),
+            MinLengthValidator(
+                minLength = 3,
+                errorText = "Must be 3 characters long!"
+            )
+        )
+    )
 }
