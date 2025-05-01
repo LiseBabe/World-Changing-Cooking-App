@@ -7,6 +7,7 @@ data class Recipe(
     var id: UUID,
     var title: String,
     var publicationDate: String,
+    var description: String,
     var difficulty: Difficulty, //enum Difficulty
     var price: Price,
     var typeOfRecipe: TypeOfRecipe,

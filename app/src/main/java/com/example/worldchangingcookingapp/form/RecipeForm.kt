@@ -112,6 +112,19 @@ class RecipeForm : Form() {
             )
         )
     )
+
+    @FormField
+    val description = FieldState(
+        state = mutableStateOf(null),
+        validators = mutableListOf(
+            NotEmptyValidator(),
+            MinLengthValidator(
+                minLength = 3,
+                errorText = "Must be 3 characters long!"
+            )
+        )
+    )
+
     @FormField
     val difficulty = FieldState(
         state = mutableStateOf(null),
@@ -173,18 +186,24 @@ class RecipeForm : Form() {
             NotEmptyValidator()
         )
     )
+
+    @FormField
     var preparationTime = FieldState(
         state = mutableStateOf<Duration?>(null),
         validators = mutableListOf(
             NotEmptyValidator()
         )
     )
+
+    @FormField
     var cookingTime = FieldState(
         state = mutableStateOf<Duration?>(null),
         validators = mutableListOf(
             NotEmptyValidator()
         )
     )
+
+    @FormField
     var restingTime = FieldState(
         state = mutableStateOf<Duration?>(null),
         validators = mutableListOf(
@@ -220,6 +239,8 @@ class RecipeForm : Form() {
             NotEmptyValidator()
         )
     )
+
+    @FormField
     val moreInformation = FieldState(
         state = mutableStateOf(null),
         validators = mutableListOf(
