@@ -46,9 +46,15 @@ import com.example.worldchangingcookingapp.models.DifficultyPicker
 import com.example.worldchangingcookingapp.models.IngredientItem
 import com.example.worldchangingcookingapp.models.Price
 import com.example.worldchangingcookingapp.models.PricePicker
+import com.example.worldchangingcookingapp.models.Recipe
 import com.example.worldchangingcookingapp.models.RecipeTypePicker
 import com.example.worldchangingcookingapp.models.TypeOfRecipe
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.UUID
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 data class NumberPicker (
@@ -127,7 +133,7 @@ class RecipeForm : Form() {
 
     @FormField
     val difficulty = FieldState(
-        state = mutableStateOf(null),
+        state = mutableStateOf<DifficultyPicker?>(null),
         options = mutableListOf(
             DifficultyPicker(Difficulty.REALLY_EASY, "Really Easy"),
             DifficultyPicker(Difficulty.EASY, "Easy"),
@@ -142,7 +148,7 @@ class RecipeForm : Form() {
     )
     @FormField
     val price = FieldState(
-        state = mutableStateOf(null),
+        state = mutableStateOf<PricePicker?>(null),
         options = mutableListOf(
             PricePicker(Price.CHEAP, "Cheap"),
             PricePicker(Price.MODERATE, "Moderate"),
@@ -251,4 +257,25 @@ class RecipeForm : Form() {
             )
         )
     )
+
+    fun toRecipe(recipe : Recipe) : Recipe {
+        return Recipe(
+            id = UUID.randomUUID(),
+            publicationDate = "1/1/2000",
+            title = title.state.value ?: "",
+            description = description.state.value ?: "",
+            difficulty = difficulty.state.value?.type ?: Difficulty.MEDIUM,
+            price = price.state.value?.type ?: Price.MODERATE,
+            typeOfRecipe = typeOfRecipe.state.value?.type ?: TypeOfRecipe.MAIN_COURSE,
+            numberOfPeople = numberOfPeople.state.value?.value ?: 1,
+            preparationTime = preparationTime.state.value ?: 0.minutes,
+            cookingTime = cookingTime.state.value ?: 0.minutes,
+            restingTime = restingTime.state.value ?: 0.minutes,
+            cookingType = cookingType.state.value?.type ?: CookingType.OTHER,
+            ingredients = ingredients.state.map { it.state.value },
+            steps = steps.state.map { it.state.value },
+            posterPath = "",
+            moreInformation = moreInformation.state.value ?: ""
+        )
+    }
 }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -36,6 +37,7 @@ fun ViewRecipeScreen(recipe : Recipe) {
 
         Text(recipe.title, style = MaterialTheme.typography.headlineLarge)
         Text(recipe.publicationDate, style = MaterialTheme.typography.labelSmall)
+        //add interaction buttons here (saving, favoriting, liking, etc)
         Spacer(Modifier.padding(8.dp))
         Text(recipe.description, style = MaterialTheme.typography.bodyMedium)
 
@@ -102,7 +104,7 @@ fun ViewRecipeScreen(recipe : Recipe) {
         Text("Steps", style = MaterialTheme.typography.headlineSmall)
         Column {
             recipe.steps.forEachIndexed { i, step ->
-                Card (modifier = Modifier.fillMaxWidth(0.5f).padding(start = 8.dp)) {
+                Card (modifier = Modifier.defaultMinSize(minWidth = 200.dp).padding(start = 8.dp, bottom = 4.dp)) {
                     Column {
                         Text("Step ${i + 1}",
                             style = MaterialTheme.typography.titleMedium,
@@ -114,7 +116,7 @@ fun ViewRecipeScreen(recipe : Recipe) {
                 }
             }
         }
-        Spacer(Modifier.padding(8.dp))
+        Spacer(Modifier.padding(4.dp))
         Text("Additional Info", style = MaterialTheme.typography.headlineSmall)
         Text(recipe.moreInformation, style = MaterialTheme.typography.bodyMedium)
     }

@@ -7,18 +7,29 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import ch.benlu.composeform.fields.PickerField
 import ch.benlu.composeform.fields.TextField
 import com.example.worldchangingcookingapp.form.RecipeFormViewModel
@@ -62,6 +73,10 @@ fun blankRecipe(): Recipe {
 
 @Composable
 fun CreateRecipeScreen(formModel : RecipeFormViewModel, recipe: Recipe = blankRecipe()) {
+
+    var recipe by remember { mutableStateOf(recipe) }
+    var isPreviewVisible by remember { mutableStateOf(false) }
+
     Column (
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(8.dp)
         ){
@@ -163,7 +178,19 @@ fun CreateRecipeScreen(formModel : RecipeFormViewModel, recipe: Recipe = blankRe
             }
             Spacer(Modifier.padding(12.dp))
             OutlinedButton(
-                onClick = { },
+                onClick = {
+                    recipe = formModel.form.toRecipe(recipe)
+                    isPreviewVisible = true
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp, start = 24.dp, end = 24.dp)
+            ) {
+                Text("Preview")
+            }
+            Spacer(Modifier.padding(12.dp))
+            OutlinedButton(
+                onClick = {
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp, start = 24.dp, end = 24.dp)
             ) {
@@ -171,6 +198,51 @@ fun CreateRecipeScreen(formModel : RecipeFormViewModel, recipe: Recipe = blankRe
             }
         }
     }
+    if (isPreviewVisible) {
+        PreviewRecipePopup(recipe) {
+            isPreviewVisible = false
+        }
+    }
+}
+
+@Composable
+fun PreviewRecipePopup(recipe: Recipe, onDismiss: () -> Unit) {
+    println("** Popup Shown **")
+    Dialog(onDismissRequest = {
+        onDismiss.invoke()
+    },
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false
+        )) {
+        Surface (
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(640.dp).padding(start = 16.dp, end = 16.dp),
+            shape = RoundedCornerShape(10.dp)
+        ) {
+            Column (verticalArrangement = Arrangement.SpaceBetween){
+                LazyColumn (modifier = Modifier.weight(1f)) {
+                    item {
+                        ViewRecipeScreen(recipe)
+                    }
+                }
+                Row (modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center) {
+                    OutlinedButton(
+                        onClick = {
+                            onDismiss.invoke()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                        contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp, start = 24.dp, end = 24.dp)
+                    ) {
+                        Text("Close")
+                    }
+                }
+
+            }
+        }
+    }
+
 }
 
 
