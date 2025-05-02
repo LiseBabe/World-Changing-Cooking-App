@@ -7,10 +7,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.worldchangingcookingapp.database.Users
+import com.example.worldchangingcookingapp.ui.screens.OtherProfileScreen
+import com.example.worldchangingcookingapp.ui.screens.UserListScreen
 import com.example.worldchangingcookingapp.ui.theme.WorldChangingCookingAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,10 +24,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             WorldChangingCookingAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    UserListScreen(Users().getUsers())
                 }
             }
         }
@@ -36,12 +37,4 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
         text = "Hello $name!",
         modifier = modifier
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    WorldChangingCookingAppTheme {
-        Greeting("Android")
-    }
 }
