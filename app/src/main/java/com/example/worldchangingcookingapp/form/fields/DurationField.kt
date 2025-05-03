@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -21,11 +25,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import ch.benlu.composeform.Field
@@ -63,19 +70,29 @@ class DurationField(
         val focusRequester = FocusRequester()
         val focusManager = LocalFocusManager.current
 
-        TextFieldComponent(
-            modifier = modifier ?: Modifier,
-            imeAction = imeAction ?: ImeAction.Next,
-            isEnabled = isEnabled,
-            label = label,
-            text = formatter?.invoke(value.value) ?: (value.value?.toString() ?: ""),
-            hasError = fieldState.hasError(),
-            errorText = fieldState.errorText,
-            isReadOnly = true,
-            visualTransformation = visualTransformation,
-            focusRequester = focusRequester,
-            focusChanged = {
-                isDialogVisible = it.isFocused
+        OutlinedTextField(
+            modifier = (modifier ?: Modifier)
+                .fillMaxWidth()
+                .focusRequester(focusRequester)
+                .onFocusChanged {
+                    isDialogVisible = it.isFocused
+                },
+            label = {
+                Text(
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    text = label
+                )
+            },
+            value = formatter?.invoke(value.value) ?: (value.value?.toString() ?: ""),
+            onValueChange = {},
+            isError = fieldState.hasError(),
+            readOnly = true,
+            trailingIcon = {
+                Icon(
+                    if (isDialogVisible) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                    null
+                )
             }
         )
 

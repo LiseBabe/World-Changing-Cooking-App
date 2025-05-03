@@ -68,7 +68,7 @@ class IngredientItem(override var state: MutableState<Ingredients>) : ListItem<I
                 focusManager.clearFocus()
             }) {
                 Surface (
-                    modifier = Modifier.width(350.dp).height(450.dp),
+                    modifier = Modifier.width(350.dp),
                     shape = RoundedCornerShape(10.dp)
                 )
                 {

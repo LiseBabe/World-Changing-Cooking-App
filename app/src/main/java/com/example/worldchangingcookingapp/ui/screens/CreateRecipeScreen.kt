@@ -30,23 +30,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import ch.benlu.composeform.fields.PickerField
-import ch.benlu.composeform.fields.TextField
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.worldchangingcookingapp.form.RecipeFormViewModel
 import com.example.worldchangingcookingapp.form.StepItemFactory
 import com.example.worldchangingcookingapp.form.fields.DurationField
 import com.example.worldchangingcookingapp.form.fields.LargeTextField
 import com.example.worldchangingcookingapp.form.fields.ListField
+import com.example.worldchangingcookingapp.form.fields.PickerField
+import com.example.worldchangingcookingapp.form.fields.TextField
 import com.example.worldchangingcookingapp.models.CookingType
 import com.example.worldchangingcookingapp.models.Recipe
 import com.example.worldchangingcookingapp.models.Difficulty
-import com.example.worldchangingcookingapp.models.IngredientItem
 import com.example.worldchangingcookingapp.models.IngredientItemFactory
 import com.example.worldchangingcookingapp.models.Ingredients
 import com.example.worldchangingcookingapp.models.Price
 import com.example.worldchangingcookingapp.models.TypeOfRecipe
-import com.example.worldchangingcookingapp.ui.theme.WorldChangingCookingAppTheme
-import java.nio.file.WatchEvent
 import java.util.UUID
 import kotlin.time.Duration.Companion.minutes
 
@@ -72,14 +70,13 @@ fun blankRecipe(): Recipe {
 }
 
 @Composable
-fun CreateRecipeScreen(formModel : RecipeFormViewModel, recipe: Recipe = blankRecipe()) {
+fun CreateRecipeScreen(formModel : RecipeFormViewModel = viewModel(), recipe: Recipe = blankRecipe()) {
 
     var recipe by remember { mutableStateOf(recipe) }
     var isPreviewVisible by remember { mutableStateOf(false) }
-
-    Column (
+    Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(8.dp)
-        ){
+    ) {
         TextField(
             label = "Title",
             form = formModel.form,
@@ -167,12 +164,19 @@ fun CreateRecipeScreen(formModel : RecipeFormViewModel, recipe: Recipe = blankRe
             popUpTitle = "Additional Info"
         ).Field()
 
-        Row (modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
             OutlinedButton(
                 onClick = { },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp, start = 24.dp, end = 24.dp)
+                contentPadding = PaddingValues(
+                    top = 8.dp,
+                    bottom = 8.dp,
+                    start = 24.dp,
+                    end = 24.dp
+                )
             ) {
                 Text("Discard")
             }
@@ -183,7 +187,12 @@ fun CreateRecipeScreen(formModel : RecipeFormViewModel, recipe: Recipe = blankRe
                     isPreviewVisible = true
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
-                contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp, start = 24.dp, end = 24.dp)
+                contentPadding = PaddingValues(
+                    top = 8.dp,
+                    bottom = 8.dp,
+                    start = 24.dp,
+                    end = 24.dp
+                )
             ) {
                 Text("Preview")
             }
@@ -192,7 +201,12 @@ fun CreateRecipeScreen(formModel : RecipeFormViewModel, recipe: Recipe = blankRe
                 onClick = {
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp, start = 24.dp, end = 24.dp)
+                contentPadding = PaddingValues(
+                    top = 8.dp,
+                    bottom = 8.dp,
+                    start = 24.dp,
+                    end = 24.dp
+                )
             ) {
                 Text("Publish")
             }
@@ -249,6 +263,6 @@ fun PreviewRecipePopup(recipe: Recipe, onDismiss: () -> Unit) {
 @Preview
 @Composable
 fun CreateRecipePreview() {
-    CreateRecipeScreen(RecipeFormViewModel())
+    CreateRecipeScreen()
 }
 
