@@ -1,20 +1,20 @@
 package com.example.worldchangingcookingapp
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -24,26 +24,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.worldchangingcookingapp.services.AccountService
 import com.example.worldchangingcookingapp.ui.screens.CreateRecipeScreen
+import com.example.worldchangingcookingapp.ui.screens.LoginScreen
 import com.example.worldchangingcookingapp.ui.theme.WorldChangingCookingAppTheme
-import kotlinx.serialization.Serializable
+import com.example.worldchangingcookingapp.viewmodel.LoginViewModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlin.coroutines.coroutineContext
 
-@Serializable
-object Home
-@Serializable
-object Profile
-@Serializable
-object CreateRecipe
-@Serializable
-object ViewRecipe
-
-data class TopLevelRoute<T : Any>(val route : T, val icon : ImageVector, val label: String)
-
-val topLevelRoutes = listOf(
-    TopLevelRoute(Home, Icons.Default.Home, "Home"),
-    TopLevelRoute(Profile, Icons.Default.Person, "Profile"),
-    TopLevelRoute(CreateRecipe, Icons.Default.Add, "Create Recipe")
-)
 
 @Composable
 fun WCCookingApp() {
@@ -51,16 +40,20 @@ fun WCCookingApp() {
         Surface (color = MaterialTheme.colorScheme.background) {
             var navController = rememberNavController()
 
+            val accountService = remember { AccountService() }
+
+            val initialScreen = if (accountService.hasUser) Home else Login
+
             Scaffold (
-                bottomBar = { BottomNavBar(navController) }
+                    bottomBar = { if (accountService.hasUser) { BottomNavBar(navController) } }
             ){
                 innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = CreateRecipe,
+                        startDestination = initialScreen,
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        appGraph()
+                        appGraph(navController, accountService)
                     }
             }
         }
@@ -69,10 +62,10 @@ fun WCCookingApp() {
 
 @Composable
 fun BottomNavBar(navController: NavController) {
-    BottomNavigation {
+    NavigationBar {
         val currentDestination = navController.currentBackStackEntryAsState().value?.destination
         topLevelRoutes.forEach { topLevelRoute ->
-            BottomNavigationItem(
+            NavigationBarItem(
                 icon = { Icon(topLevelRoute.icon, contentDescription = topLevelRoute.label) },
                 label = { Text(topLevelRoute.label) },
                 selected = currentDestination?.hierarchy?.any { it.hasRoute(topLevelRoute.route::class) } == true,
@@ -91,9 +84,28 @@ fun BottomNavBar(navController: NavController) {
 }
 
 
-fun NavGraphBuilder.appGraph() {
-    composable<Home> {  }
+fun NavGraphBuilder.appGraph(navController : NavController, auth : AccountService) {
+    composable<Home> {
+        val coroutineScope = rememberCoroutineScope()
+        Button(onClick = {
+            coroutineScope.launch {
+                auth.signOut()
+            }
+        }) {
+            Text("Sign Out")
+        }
+    }
     composable<Profile> {  }
     composable<CreateRecipe> { CreateRecipeScreen() }
     composable<ViewRecipe> { }
+    composable<Login> {
+        val viewModel : LoginViewModel = viewModel(
+            factory = LoginViewModel.Factory(auth)
+        )
+        LoginScreen(viewModel, onSuccess = {
+            navController.navigate(Home) {
+                launchSingleTop = true
+            }
+        })
+    }
 }

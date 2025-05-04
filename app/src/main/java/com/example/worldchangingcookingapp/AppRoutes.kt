@@ -1,0 +1,27 @@
+package com.example.worldchangingcookingapp
+
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.ui.graphics.vector.ImageVector
+import kotlinx.serialization.Serializable
+
+@Serializable
+object Home
+@Serializable
+object Profile
+@Serializable
+object CreateRecipe
+@Serializable
+object ViewRecipe
+@Serializable
+object Login
+
+data class TopLevelRoute<T : Any>(val route : T, val icon : ImageVector, val label: String)
+
+val topLevelRoutes = listOf(
+    TopLevelRoute(Home, Icons.Default.Home, "Home"),
+    TopLevelRoute(Profile, Icons.Default.Person, "Profile"),
+    TopLevelRoute(CreateRecipe, Icons.Default.Add, "Create Recipe")
+)

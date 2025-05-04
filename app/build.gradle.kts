@@ -51,7 +51,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation("androidx.compose.material:material:1.8.0")
     implementation("com.github.benjamin-luescher:compose-form:0.2.8")
     implementation("androidx.navigation:navigation-compose:2.8.9")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
@@ -59,8 +58,10 @@ dependencies {
     implementation("androidx.navigation:navigation-ui:2.8.9")
     implementation("androidx.navigation:navigation-dynamic-features-fragment:2.8.9")
 
-    implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
-    implementation("com.google.firebase:firebase-analytics")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
