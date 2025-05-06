@@ -6,4 +6,7 @@ data class User(
     @DocumentId val id: String = "",
     val email: String = "",
     val displayName: String = "",
+    val profilePicturePath: String = "",
+    val friends: List<String> = listOf(),
+    val recipes: List<String> = listOf()
 )

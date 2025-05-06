@@ -31,9 +31,10 @@ fun LoginScreen(viewModel: LoginViewModel, onSuccess : () -> Unit) {
             onValueChange = {
                 viewModel.username = it
             },
+            isError = viewModel.hasError,
             maxLines = 1,
             label = {
-                Text("Username")
+                Text("Email")
             }
         )
         OutlinedTextField(
@@ -42,6 +43,7 @@ fun LoginScreen(viewModel: LoginViewModel, onSuccess : () -> Unit) {
             onValueChange = {
                 viewModel.password = it
             },
+            isError = viewModel.hasError,
             maxLines = 1,
             label = {
                 Text("Password")
@@ -54,6 +56,7 @@ fun LoginScreen(viewModel: LoginViewModel, onSuccess : () -> Unit) {
                 onValueChange = {
                     viewModel.passwordDupe = it
                 },
+                isError = viewModel.hasError,
                 maxLines = 1,
                 label = {
                     Text("Repeat Password")

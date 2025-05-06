@@ -50,8 +50,11 @@ import kotlin.time.Duration.Companion.minutes
 
 fun blankRecipe(): Recipe {
     return Recipe(
-        id = UUID.randomUUID(),
+        id = "",
         title = "",
+        authorId = "",
+        authorName = "",
+        authorProfilePath = "",
         description = "",
         publicationDate = "",
         difficulty = Difficulty.MEDIUM,
@@ -62,7 +65,6 @@ fun blankRecipe(): Recipe {
         cookingTime = 0.minutes,
         restingTime = 0.minutes,
         cookingType = CookingType.NO_COOKING,
-        posterPath = "",
         ingredients = arrayListOf<Ingredients>(),
         steps = arrayListOf<String>(),
         moreInformation = "",

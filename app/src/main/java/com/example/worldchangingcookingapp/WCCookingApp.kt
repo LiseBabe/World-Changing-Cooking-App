@@ -1,5 +1,7 @@
 package com.example.worldchangingcookingapp
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -11,8 +13,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -25,9 +30,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.worldchangingcookingapp.services.AccountService
+import com.example.worldchangingcookingapp.services.ApiService
 import com.example.worldchangingcookingapp.ui.screens.CreateRecipeScreen
 import com.example.worldchangingcookingapp.ui.screens.LoginScreen
 import com.example.worldchangingcookingapp.ui.theme.WorldChangingCookingAppTheme
+import com.example.worldchangingcookingapp.viewmodel.AppViewModel
 import com.example.worldchangingcookingapp.viewmodel.LoginViewModel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -36,16 +43,25 @@ import kotlin.coroutines.coroutineContext
 
 @Composable
 fun WCCookingApp() {
+
+    val accountService = remember { AccountService() }
+    val apiService = remember { ApiService() }
+
+    val appViewModel : AppViewModel = viewModel(
+        factory = AppViewModel.Factory(accountService, apiService)
+    )
+
+    val loggedIn by remember { appViewModel.loggedIn }
+
     WorldChangingCookingAppTheme {
+
         Surface (color = MaterialTheme.colorScheme.background) {
             var navController = rememberNavController()
 
-            val accountService = remember { AccountService() }
-
-            val initialScreen = if (accountService.hasUser) Home else Login
+            val initialScreen = if (loggedIn) Home else Login
 
             Scaffold (
-                    bottomBar = { if (accountService.hasUser) { BottomNavBar(navController) } }
+                    bottomBar = { if (loggedIn) { BottomNavBar(navController) } }
             ){
                 innerPadding ->
                     NavHost(
@@ -53,7 +69,7 @@ fun WCCookingApp() {
                         startDestination = initialScreen,
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        appGraph(navController, accountService)
+                        appGraph(navController, appViewModel)
                     }
             }
         }
@@ -84,15 +100,19 @@ fun BottomNavBar(navController: NavController) {
 }
 
 
-fun NavGraphBuilder.appGraph(navController : NavController, auth : AccountService) {
+fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppViewModel) {
     composable<Home> {
-        val coroutineScope = rememberCoroutineScope()
-        Button(onClick = {
-            coroutineScope.launch {
-                auth.signOut()
+        val user by remember { appViewModel.user }
+        Column (modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally){
+            Text("Logged in As: ${user?.email}")
+            Text("Logged in Id: ${user?.id}")
+
+            Button(onClick = {
+                appViewModel.signOut()
+            }) {
+                Text("Sign Out")
             }
-        }) {
-            Text("Sign Out")
         }
     }
     composable<Profile> {  }
@@ -100,9 +120,10 @@ fun NavGraphBuilder.appGraph(navController : NavController, auth : AccountServic
     composable<ViewRecipe> { }
     composable<Login> {
         val viewModel : LoginViewModel = viewModel(
-            factory = LoginViewModel.Factory(auth)
+            factory = LoginViewModel.Factory(appViewModel.auth, appViewModel.api)
         )
         LoginScreen(viewModel, onSuccess = {
+            appViewModel.signIn()
             navController.navigate(Home) {
                 launchSingleTop = true
             }

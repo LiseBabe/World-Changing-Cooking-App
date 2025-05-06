@@ -1,12 +1,8 @@
 package com.example.worldchangingcookingapp.services
 
-import com.example.worldchangingcookingapp.models.User
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 class AccountService {
@@ -17,16 +13,6 @@ class AccountService {
 
     val hasUser: Boolean
         get() = auth.currentUser != null
-
-    val currentUser: Flow<User>
-        get() = callbackFlow {
-            val listener =
-                FirebaseAuth.AuthStateListener { auth ->
-                    this.trySend(auth.currentUser?.let { User(it.uid)} ?: User())
-                }
-            auth.addAuthStateListener(listener)
-            awaitClose { auth.removeAuthStateListener(listener) }
-        }
 
     suspend fun authenticate(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password).await()
@@ -44,7 +30,7 @@ class AccountService {
         auth.currentUser!!.delete().await()
     }
 
-    suspend fun signOut() {
+    fun signOut() {
         auth.signOut()
     }
 }

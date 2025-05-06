@@ -127,9 +127,12 @@ fun ViewRecipeScreen(recipe : Recipe) {
 fun PreviewRecipeScreen() {
     ViewRecipeScreen(
         Recipe(
-            id = UUID.randomUUID(),
+            id = "",
             title = "Banana Bread",
             publicationDate = "1/5/2025",
+            authorId = "",
+            authorName = "Jeremy Beremy",
+            authorProfilePath = "",
             description = "A delicious banana bread recipe. Beginner friendly. Milk Free.",
             difficulty = Difficulty.EASY,
             price = Price.MODERATE,
@@ -139,7 +142,6 @@ fun PreviewRecipeScreen() {
             cookingTime = 45.minutes,
             restingTime = 15.minutes,
             cookingType = CookingType.OVEN,
-            posterPath = "",
             ingredients = listOf(
                 Ingredients(40.0, "mg", "butter", "")
             ),

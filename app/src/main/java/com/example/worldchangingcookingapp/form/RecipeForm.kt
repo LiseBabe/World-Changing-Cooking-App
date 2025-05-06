@@ -260,9 +260,12 @@ class RecipeForm : Form() {
 
     fun toRecipe(recipe : Recipe) : Recipe {
         return Recipe(
-            id = UUID.randomUUID(),
+            id = "",
             publicationDate = "1/1/2000",
             title = title.state.value ?: "",
+            authorId = "",
+            authorName = "Jeremy Beremy",
+            authorProfilePath = "",
             description = description.state.value ?: "",
             difficulty = difficulty.state.value?.type ?: Difficulty.MEDIUM,
             price = price.state.value?.type ?: Price.MODERATE,
@@ -274,7 +277,6 @@ class RecipeForm : Form() {
             cookingType = cookingType.state.value?.type ?: CookingType.OTHER,
             ingredients = ingredients.state.map { it.state.value },
             steps = steps.state.map { it.state.value },
-            posterPath = "",
             moreInformation = moreInformation.state.value ?: ""
         )
     }
