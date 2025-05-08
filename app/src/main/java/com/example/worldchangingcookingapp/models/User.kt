@@ -1,9 +1,11 @@
 package com.example.worldchangingcookingapp.models
+import com.google.firebase.firestore.DocumentId
 
 data class User(
-    var id: Long = 0L,
-    var pseudo: String,
-    var name: String,
-    var numberRecipes: Long,
-    var numberFriends: Long
+    @DocumentId val id: String = "",
+    val email: String = "",
+    val displayName: String = "",
+    val profilePicturePath: String = "",
+    val friends: List<String> = listOf(),
+    val recipes: List<String> = listOf()
 )
