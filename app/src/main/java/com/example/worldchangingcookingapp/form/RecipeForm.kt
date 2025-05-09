@@ -258,10 +258,24 @@ class RecipeForm : Form() {
         )
     )
 
-    fun toRecipe(recipe : Recipe) : Recipe {
+    fun clear() {
+        title.state.value = null
+        description.state.value = null
+        difficulty.state.value = null
+        price.state.value = null
+        typeOfRecipe.state.value = null
+        numberOfPeople.state.value = null
+        preparationTime.state.value = null
+        cookingTime.state.value = null
+        restingTime.state.value = null
+        cookingType.state.value = null
+        ingredients.state.clear()
+        steps.state.clear()
+        moreInformation.state.value = null
+    }
+
+    fun toRecipe() : Recipe {
         return Recipe(
-            id = "",
-            publicationDate = "1/1/2000",
             title = title.state.value ?: "",
             authorId = "",
             authorName = "Jeremy Beremy",

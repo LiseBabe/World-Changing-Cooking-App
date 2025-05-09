@@ -36,6 +36,7 @@ import com.example.worldchangingcookingapp.ui.screens.LoginScreen
 import com.example.worldchangingcookingapp.ui.theme.WorldChangingCookingAppTheme
 import com.example.worldchangingcookingapp.viewmodel.AppViewModel
 import com.example.worldchangingcookingapp.viewmodel.LoginViewModel
+import com.example.worldchangingcookingapp.viewmodel.RecipeFormViewModel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.coroutines.coroutineContext
@@ -50,6 +51,8 @@ fun WCCookingApp() {
     val appViewModel : AppViewModel = viewModel(
         factory = AppViewModel.Factory(accountService, apiService)
     )
+
+    appViewModel.signIn()
 
     val loggedIn by remember { appViewModel.loggedIn }
 
@@ -116,7 +119,12 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
         }
     }
     composable<Profile> {  }
-    composable<CreateRecipe> { CreateRecipeScreen() }
+    composable<CreateRecipe> {
+        val viewModel : RecipeFormViewModel = viewModel(
+            factory = RecipeFormViewModel.Factory(appViewModel.user.value!!, appViewModel.api)
+        )
+        CreateRecipeScreen(viewModel)
+    }
     composable<ViewRecipe> { }
     composable<Login> {
         val viewModel : LoginViewModel = viewModel(

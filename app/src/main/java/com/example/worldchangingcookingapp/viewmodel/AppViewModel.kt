@@ -19,6 +19,7 @@ class AppViewModel (val auth: AccountService, val api: ApiService) : ViewModel()
         loggedIn.value = auth.hasUser
         viewModelScope.launch {
             user.value = api.getUser(auth.currentUserId)
+            print("User ${user.value?.displayName} Signed In")
         }
     }
     fun signOut() {

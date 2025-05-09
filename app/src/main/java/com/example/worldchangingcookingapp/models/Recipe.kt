@@ -1,16 +1,19 @@
 package com.example.worldchangingcookingapp.models
 
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.ServerTimestamp
 import java.util.UUID
 import kotlin.time.Duration
 
 data class Recipe(
-    @DocumentId var id: String,
+    @DocumentId var id: String? = null,
     var title: String,
     var authorId: String,
     var authorName: String,
     var authorProfilePath: String,
-    var publicationDate: String,
+    @ServerTimestamp
+    var publicationDate: Timestamp? = null,
     var description: String,
     var difficulty: Difficulty, //enum Difficulty
     var price: Price,
