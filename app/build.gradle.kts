@@ -3,8 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
-    id("com.google.devtools.ksp") version "2.1.0-1.0.29"
-    kotlin("plugin.serialization") version "2.0.21"
+    id("com.google.devtools.ksp")
+    kotlin("plugin.serialization") version "2.1.0"
 }
 
 android {
@@ -53,11 +53,11 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation("com.github.benjamin-luescher:compose-form:0.2.8")
-    implementation("androidx.navigation:navigation-compose:2.8.9")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
-    implementation("androidx.navigation:navigation-fragment:2.8.9")
-    implementation("androidx.navigation:navigation-ui:2.8.9")
-    implementation("androidx.navigation:navigation-dynamic-features-fragment:2.8.9")
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.navigation.fragment)
+    implementation(libs.androidx.navigation.ui)
+    implementation(libs.androidx.navigation.dynamic.features.fragment)
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
@@ -65,9 +65,9 @@ dependencies {
     implementation(libs.firebase.firestore)
 
     //Room
-    implementation("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
+    implementation(libs.androidx.room.runtime)
     ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
-    implementation("androidx.room:room-ktx:${rootProject.extra["room_version"]}")
+    implementation(libs.androidx.room.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

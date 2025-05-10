@@ -1,12 +1,15 @@
 package com.example.worldchangingcookingapp.viewmodel
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.worldchangingcookingapp.WorldChangingCookingApplication
+import com.example.worldchangingcookingapp.models.Recipe
 import com.example.worldchangingcookingapp.models.User
 import com.example.worldchangingcookingapp.services.AccountService
 import com.example.worldchangingcookingapp.services.ApiService
@@ -20,6 +23,8 @@ class AppViewModel (
 
     val loggedIn = mutableStateOf(auth.hasUser)
     val user = mutableStateOf<User?>(null)
+
+    var selectedRecipe by mutableStateOf<Recipe?>(null)
 
     fun signIn() {
         loggedIn.value = auth.hasUser

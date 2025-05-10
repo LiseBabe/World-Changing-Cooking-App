@@ -78,7 +78,7 @@ class ApiService {
         val userRef = firestore.collection(USER_COLLECTION).document(recipe.authorId)
         userRef.update(RECIPE_FIELD, FieldValue.arrayRemove(recipe.id)).await()
 
-        firestore.collection(RECIPE_COLLECTION).document(recipe.id!!).delete().await()
+        firestore.collection(RECIPE_COLLECTION).document(recipe.id).delete().await()
     }
 
     suspend fun getRecipes(ids: List<String>): List<Recipe>? {
@@ -129,6 +129,13 @@ class ApiService {
             null
         }
         return recipes to newLastVisible
+    }
+
+    fun randomUserId(): String {
+        return firestore.collection(USER_COLLECTION).document().id
+    }
+    fun randomRecipeId(): String {
+        return firestore.collection(RECIPE_COLLECTION).document().id
     }
 
     companion object {

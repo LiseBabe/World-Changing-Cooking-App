@@ -7,14 +7,13 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.ServerTimestamp
-import java.util.UUID
 import kotlin.time.Duration
 
 @Entity(tableName = "recipes")
 data class Recipe(
-    @PrimaryKey
     @DocumentId
-    var id: String? = null,
+    @PrimaryKey
+    var id: String = "",
     var title: String,
     var authorId: String,
     var authorName: String,
@@ -33,6 +32,6 @@ data class Recipe(
     var ingredients: List<Ingredients>,
     var steps: List<String>,
     var moreInformation: String,
-    @Exclude
+    @get:Exclude
     var cacheCategory : CacheCategory = CacheCategory.DRAFT
 )

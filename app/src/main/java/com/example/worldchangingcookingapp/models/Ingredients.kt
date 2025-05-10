@@ -34,7 +34,9 @@ import androidx.compose.ui.window.Dialog
 import ch.benlu.composeform.components.TextFieldComponent
 import com.example.worldchangingcookingapp.form.fields.ListItem
 import com.example.worldchangingcookingapp.form.fields.ListItemFactory
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Ingredients(
     var quantity: Double,
     var unit: String,

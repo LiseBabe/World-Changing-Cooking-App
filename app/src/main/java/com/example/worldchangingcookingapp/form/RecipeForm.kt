@@ -102,9 +102,25 @@ class StepItemFactory : ListItemFactory<String> {
     }
 }
 
-class RecipeForm : Form() {
+class RecipeForm() : Form() {
     override fun self(): Form {
         return this
+    }
+
+    fun setupForm(recipe : Recipe) {
+        title.state.value = recipe.title
+        description.state.value = recipe.description
+        difficulty.state.value = DifficultyPicker(recipe.difficulty, recipe.difficulty.name)
+        price.state.value = PricePicker(recipe.price, recipe.price.name)
+        typeOfRecipe.state.value = RecipeTypePicker(recipe.typeOfRecipe, recipe.typeOfRecipe.name)
+        numberOfPeople.state.value = NumberPicker(recipe.numberOfPeople)
+        preparationTime.state.value = recipe.preparationTime
+        cookingTime.state.value = recipe.cookingTime
+        restingTime.state.value = recipe.restingTime
+        cookingType.state.value = CookingTypePicker(recipe.cookingType, recipe.cookingType.name)
+        ingredients.state.addAll(recipe.ingredients.map { i -> IngredientItem(mutableStateOf(i)) })
+        steps.state.addAll(recipe.steps.map { i -> StepItem(mutableStateOf(i)) })
+        moreInformation.state.value = recipe.moreInformation
     }
 
     @FormField
@@ -274,24 +290,22 @@ class RecipeForm : Form() {
         moreInformation.state.value = null
     }
 
-    fun toRecipe() : Recipe {
-        return Recipe(
-            title = title.state.value ?: "",
-            authorId = "",
-            authorName = "Jeremy Beremy",
-            authorProfilePath = "",
-            description = description.state.value ?: "",
-            difficulty = difficulty.state.value?.type ?: Difficulty.MEDIUM,
-            price = price.state.value?.type ?: Price.MODERATE,
-            typeOfRecipe = typeOfRecipe.state.value?.type ?: TypeOfRecipe.MAIN_COURSE,
-            numberOfPeople = numberOfPeople.state.value?.value ?: 1,
-            preparationTime = preparationTime.state.value ?: 0.minutes,
-            cookingTime = cookingTime.state.value ?: 0.minutes,
-            restingTime = restingTime.state.value ?: 0.minutes,
-            cookingType = cookingType.state.value?.type ?: CookingType.OTHER,
-            ingredients = ingredients.state.map { it.state.value },
-            steps = steps.state.map { it.state.value },
-            moreInformation = moreInformation.state.value ?: ""
-        )
+    fun collectValues(recipe: Recipe) {
+        recipe.title = title.state.value ?: ""
+        recipe.authorId = ""
+        recipe.authorName = "Jeremy Beremy"
+        recipe.authorProfilePath = ""
+        recipe.description = description.state.value ?: ""
+        recipe.difficulty = difficulty.state.value?.type ?: Difficulty.MEDIUM
+        recipe.price = price.state.value?.type ?: Price.MODERATE
+        recipe.typeOfRecipe = typeOfRecipe.state.value?.type ?: TypeOfRecipe.MAIN_COURSE
+        recipe.numberOfPeople = numberOfPeople.state.value?.value ?: 1
+        recipe.preparationTime = preparationTime.state.value ?: 0.minutes
+        recipe.cookingTime = cookingTime.state.value ?: 0.minutes
+        recipe.restingTime = restingTime.state.value ?: 0.minutes
+        recipe.cookingType = cookingType.state.value?.type ?: CookingType.OTHER
+        recipe.ingredients = ingredients.state.map { it.state.value }
+        recipe.steps = steps.state.map { it.state.value }
+        recipe.moreInformation = moreInformation.state.value ?: ""
     }
 }

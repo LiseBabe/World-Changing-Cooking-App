@@ -2,35 +2,55 @@ package com.example.worldchangingcookingapp.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.worldchangingcookingapp.contants.CacheCategory
 import com.example.worldchangingcookingapp.form.RecipeForm
+import com.example.worldchangingcookingapp.models.CookingType
+import com.example.worldchangingcookingapp.models.Difficulty
+import com.example.worldchangingcookingapp.models.Price
 import com.example.worldchangingcookingapp.models.Recipe
+import com.example.worldchangingcookingapp.models.TypeOfRecipe
 import com.example.worldchangingcookingapp.models.User
 import com.example.worldchangingcookingapp.services.AccountService
 import com.example.worldchangingcookingapp.services.ApiService
+import com.example.worldchangingcookingapp.services.DatabaseService
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
 
 sealed class PostResult {
     object Success : PostResult()
     data class Error(val message : String) : PostResult()
 }
 
-class RecipeFormViewModel (val user: User, val api: ApiService) : ViewModel() {
+class RecipeFormViewModel (
+    val user: User,
+    val api: ApiService,
+    val db: DatabaseService,
+    var recipe : Recipe?
+) : ViewModel() {
     var form = RecipeForm()
 
     private val _postStatus = MutableSharedFlow<PostResult>()
     val postStatus = _postStatus.asSharedFlow()
 
-    fun getRecipe() : Recipe {
-        val recipe = form.toRecipe()
-        recipe.authorId = user.id!!
-        recipe.authorName = user.displayName
-        recipe.authorProfilePath = user.profilePicturePath
-        return recipe
+    init {
+        recipe?.let { form.setupForm(it) }
+    }
+
+    fun buildRecipe() : Recipe {
+        if (recipe == null) {
+            recipe = blankRecipe()
+        }
+        form.collectValues(recipe!!)
+        recipe?.authorId = user.id!!
+        recipe?.authorName = user.displayName
+        recipe?.authorProfilePath = user.profilePicturePath
+        return recipe!!
     }
 
     fun publishRecipe() {
@@ -41,11 +61,13 @@ class RecipeFormViewModel (val user: User, val api: ApiService) : ViewModel() {
             }
             return
         }
-        val recipe = getRecipe()
+        recipe = buildRecipe()
         viewModelScope.launch {
             try {
-                api.addRecipe(user, recipe)
+                api.addRecipe(user, recipe!!)
                 _postStatus.emit(PostResult.Success)
+                recipe?.cacheCategory = CacheCategory.REGULAR
+                saveRecipe(recipe!!)
             } catch (e : Exception) {
                 _postStatus.emit(PostResult.Error(e.message ?: "Post Failed"))
             }
@@ -53,13 +75,48 @@ class RecipeFormViewModel (val user: User, val api: ApiService) : ViewModel() {
         }
     }
 
+    fun saveRecipe(recipe: Recipe) {
+        viewModelScope.launch {
+            db.insertRecipe(recipe)
+        }
+    }
+
+    fun deleteFromCache(id: String) {
+        viewModelScope.launch {
+            db.deleteRecipe(id)
+        }
+    }
+
     companion object {
-        val Factory = { user : User, apiService : ApiService ->
+        val Factory = { user : User, apiService : ApiService, databaseService: DatabaseService, recipe : Recipe? ->
             viewModelFactory {
                 initializer {
-                    RecipeFormViewModel(user, apiService)
+                    RecipeFormViewModel(user, apiService, databaseService, recipe)
                 }
             }
         }
     }
+}
+
+fun blankRecipe(): Recipe {
+    return Recipe(
+        id = "",
+        title = "",
+        authorId = "",
+        authorName = "",
+        authorProfilePath = "",
+        description = "",
+        difficulty = Difficulty.EASY,
+        price = Price.CHEAP,
+        typeOfRecipe = TypeOfRecipe.MAIN_COURSE,
+        numberOfPeople = 0,
+        preparationTime = 0.seconds,
+        cookingTime = 0.seconds,
+        restingTime = 0.seconds,
+        cookingType = CookingType.OTHER,
+        ingredients = listOf(),
+        steps = listOf(),
+        moreInformation = "",
+        cacheCategory = CacheCategory.DRAFT
+    )
 }

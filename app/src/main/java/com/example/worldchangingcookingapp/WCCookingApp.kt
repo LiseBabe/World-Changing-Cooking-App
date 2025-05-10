@@ -27,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.worldchangingcookingapp.contants.CreateRecipe
+import com.example.worldchangingcookingapp.contants.Drafts
 import com.example.worldchangingcookingapp.contants.Home
 import com.example.worldchangingcookingapp.contants.Login
 import com.example.worldchangingcookingapp.contants.Profile
@@ -35,9 +36,11 @@ import com.example.worldchangingcookingapp.contants.topLevelRoutes
 import com.example.worldchangingcookingapp.services.AccountService
 import com.example.worldchangingcookingapp.services.ApiService
 import com.example.worldchangingcookingapp.ui.screens.CreateRecipeScreen
+import com.example.worldchangingcookingapp.ui.screens.DraftsScreen
 import com.example.worldchangingcookingapp.ui.screens.LoginScreen
 import com.example.worldchangingcookingapp.ui.theme.WorldChangingCookingAppTheme
 import com.example.worldchangingcookingapp.viewmodel.AppViewModel
+import com.example.worldchangingcookingapp.viewmodel.DraftsViewModel
 import com.example.worldchangingcookingapp.viewmodel.LoginViewModel
 import com.example.worldchangingcookingapp.viewmodel.RecipeFormViewModel
 
@@ -101,8 +104,10 @@ fun BottomNavBar(navController: NavController) {
 fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppViewModel) {
     composable<Home> {
         val user by remember { appViewModel.user }
-        Column (modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally){
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Text("Logged in As: ${user?.email}")
             Text("Logged in Id: ${user?.id}")
 
@@ -113,16 +118,34 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
             }
         }
     }
-    composable<Profile> {  }
-    composable<CreateRecipe> {
-        val viewModel : RecipeFormViewModel = viewModel(
-            factory = RecipeFormViewModel.Factory(appViewModel.user.value!!, appViewModel.api)
+    composable<Profile> { }
+    composable<Drafts> {
+        val viewModel: DraftsViewModel = viewModel(
+            factory = DraftsViewModel.Factory(appViewModel.database)
         )
-        CreateRecipeScreen(viewModel)
+        DraftsScreen(viewModel) { recipe ->
+            appViewModel.selectedRecipe = recipe
+            navController.navigate(CreateRecipe) {
+                launchSingleTop = true
+            }
+        }
+    }
+    composable<CreateRecipe> {
+        val viewModel: RecipeFormViewModel = viewModel(
+            factory = RecipeFormViewModel.Factory(
+                appViewModel.user.value!!,
+                appViewModel.api,
+                appViewModel.database,
+                appViewModel.selectedRecipe
+            )
+        )
+        CreateRecipeScreen(viewModel) {
+            navController.navigate(Drafts)
+        }
     }
     composable<ViewRecipe> { }
     composable<Login> {
-        val viewModel : LoginViewModel = viewModel(
+        val viewModel: LoginViewModel = viewModel(
             factory = LoginViewModel.Factory(appViewModel.auth, appViewModel.api)
         )
         LoginScreen(viewModel, onSuccess = {
