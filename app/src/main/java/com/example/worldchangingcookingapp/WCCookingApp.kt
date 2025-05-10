@@ -12,11 +12,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,6 +26,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.worldchangingcookingapp.contants.CreateRecipe
+import com.example.worldchangingcookingapp.contants.Home
+import com.example.worldchangingcookingapp.contants.Login
+import com.example.worldchangingcookingapp.contants.Profile
+import com.example.worldchangingcookingapp.contants.ViewRecipe
+import com.example.worldchangingcookingapp.contants.topLevelRoutes
 import com.example.worldchangingcookingapp.services.AccountService
 import com.example.worldchangingcookingapp.services.ApiService
 import com.example.worldchangingcookingapp.ui.screens.CreateRecipeScreen
@@ -37,21 +40,13 @@ import com.example.worldchangingcookingapp.ui.theme.WorldChangingCookingAppTheme
 import com.example.worldchangingcookingapp.viewmodel.AppViewModel
 import com.example.worldchangingcookingapp.viewmodel.LoginViewModel
 import com.example.worldchangingcookingapp.viewmodel.RecipeFormViewModel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlin.coroutines.coroutineContext
 
 
 @Composable
 fun WCCookingApp() {
-
-    val accountService = remember { AccountService() }
-    val apiService = remember { ApiService() }
-
     val appViewModel : AppViewModel = viewModel(
-        factory = AppViewModel.Factory(accountService, apiService)
+        factory = AppViewModel.Factory
     )
-
     appViewModel.signIn()
 
     val loggedIn by remember { appViewModel.loggedIn }
