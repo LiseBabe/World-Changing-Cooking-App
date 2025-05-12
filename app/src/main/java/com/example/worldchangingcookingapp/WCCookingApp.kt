@@ -3,22 +3,36 @@ package com.example.worldchangingcookingapp
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -33,10 +47,14 @@ import com.example.worldchangingcookingapp.services.AccountService
 import com.example.worldchangingcookingapp.services.ApiService
 import com.example.worldchangingcookingapp.ui.screens.CreateRecipeScreen
 import com.example.worldchangingcookingapp.ui.screens.LoginScreen
+import com.example.worldchangingcookingapp.ui.screens.HomePageScreen
+import com.example.worldchangingcookingapp.ui.screens.RecipeDetailScreen
 import com.example.worldchangingcookingapp.ui.theme.WorldChangingCookingAppTheme
 import com.example.worldchangingcookingapp.viewmodel.AppViewModel
 import com.example.worldchangingcookingapp.viewmodel.LoginViewModel
+import com.example.worldchangingcookingapp.viewmodel.RecipeViewModel
 import com.example.worldchangingcookingapp.viewmodel.RecipeFormViewModel
+
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.coroutines.coroutineContext
@@ -52,6 +70,10 @@ fun WCCookingApp() {
         factory = AppViewModel.Factory(accountService, apiService)
     )
 
+    val recipeViewModel: RecipeViewModel = viewModel(
+        factory = RecipeViewModel.Factory(apiService)
+    )
+
     appViewModel.signIn()
 
     val loggedIn by remember { appViewModel.loggedIn }
@@ -64,6 +86,7 @@ fun WCCookingApp() {
             val initialScreen = if (loggedIn) Home else Login
 
             Scaffold (
+                    topBar = { if (loggedIn) TopBar(onSignOut = { appViewModel.signOut() }) },
                     bottomBar = { if (loggedIn) { BottomNavBar(navController) } }
             ){
                 innerPadding ->
@@ -72,7 +95,7 @@ fun WCCookingApp() {
                         startDestination = initialScreen,
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        appGraph(navController, appViewModel)
+                        appGraph(navController, appViewModel, recipeViewModel)
                     }
             }
         }
@@ -102,21 +125,56 @@ fun BottomNavBar(navController: NavController) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopBar(onSignOut: () -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
 
-fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppViewModel) {
-    composable<Home> {
-        val user by remember { appViewModel.user }
-        Column (modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally){
-            Text("Logged in As: ${user?.email}")
-            Text("Logged in Id: ${user?.id}")
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                text = "World Changing Cooking App",
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = Color.LightGray,
+            titleContentColor = Color.Black,
+            actionIconContentColor = Color.DarkGray
+        ),
+        actions = {
+            IconButton(onClick = { expanded = true }) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "Menu"
+                )
+            }
 
-            Button(onClick = {
-                appViewModel.signOut()
-            }) {
-                Text("Sign Out")
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Sign out") },
+                    onClick = {
+                        expanded = false
+                        onSignOut()
+                    }
+                )
             }
         }
+    )
+}
+
+
+fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppViewModel, recipeViewModel : RecipeViewModel) {
+    composable<Home> {
+        HomePageScreen(
+            navController = navController,
+            appViewModel = appViewModel,
+            recipeViewModel = recipeViewModel,
+        )
     }
     composable<Profile> {  }
     composable<CreateRecipe> {
@@ -136,5 +194,14 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
                 launchSingleTop = true
             }
         })
+    }
+    composable("recipeDetail") {
+        val recipe = recipeViewModel.selectedRecipe.collectAsState().value
+
+        if (recipe != null) {
+            RecipeDetailScreen(recipe = recipe, navController = navController)
+        } else {
+            Text("Error can't select the recipe", Modifier.padding(16.dp))
+        }
     }
 }

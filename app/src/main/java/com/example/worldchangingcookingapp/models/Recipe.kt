@@ -19,9 +19,9 @@ data class Recipe(
     var price: Price,
     var typeOfRecipe: TypeOfRecipe,
     var numberOfPeople: Int,
-    var preparationTime: Duration, //probably string ? see after
-    var cookingTime: Duration, //probably string ? see after
-    var restingTime: Duration, //probably string ? see after
+    var preparationTime: Duration,
+    var cookingTime: Duration,
+    var restingTime: Duration,
     var cookingType: CookingType,
     var ingredients: List<Ingredients>,
     var steps: List<String>,

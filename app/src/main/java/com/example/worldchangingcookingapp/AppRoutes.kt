@@ -17,6 +17,9 @@ object CreateRecipe
 object ViewRecipe
 @Serializable
 object Login
+@Serializable
+object RecipeDetail
+
 
 data class TopLevelRoute<T : Any>(val route : T, val icon : ImageVector, val label: String)
 
