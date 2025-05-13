@@ -13,6 +13,8 @@ object Home
 @Serializable
 object Profile
 @Serializable
+object EditProfile
+@Serializable
 object CreateRecipe
 @Serializable
 object ViewRecipe

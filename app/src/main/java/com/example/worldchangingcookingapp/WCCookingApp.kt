@@ -38,6 +38,7 @@ import com.example.worldchangingcookingapp.services.ApiService
 import com.example.worldchangingcookingapp.ui.screens.CreateRecipeScreen
 import com.example.worldchangingcookingapp.ui.screens.DraftsScreen
 import com.example.worldchangingcookingapp.ui.screens.LoginScreen
+import com.example.worldchangingcookingapp.ui.screens.ProfileScreen
 import com.example.worldchangingcookingapp.ui.theme.WorldChangingCookingAppTheme
 import com.example.worldchangingcookingapp.viewmodel.AppViewModel
 import com.example.worldchangingcookingapp.viewmodel.DraftsViewModel
@@ -118,7 +119,6 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
             }
         }
     }
-    composable<Profile> { }
     composable<Drafts> {
         val viewModel: DraftsViewModel = viewModel(
             factory = DraftsViewModel.Factory(appViewModel.database)
@@ -142,6 +142,23 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
         CreateRecipeScreen(viewModel) {
             navController.navigate(Drafts)
         }
+    }
+    composable<Profile> {
+        val viewModel : ProfileViewModel = viewModel(
+            factory = ProfileViewModel.Factory(appViewModel.auth, appViewModel.api)
+        )
+        ProfileScreen(viewModel,
+            onEditClick = { navController.navigate(EditProfile) },
+            onClick = {appViewModel.signOut()}
+        )
+    }
+    composable<EditProfile> {
+        val viewModel : ProfileViewModel = viewModel(
+            factory = ProfileViewModel.Factory(appViewModel.auth, appViewModel.api)
+        )
+        EditProfileScreen(viewModel, onSave = {
+            navController.navigate(Profile)
+        })
     }
     composable<ViewRecipe> { }
     composable<Login> {
