@@ -320,7 +320,7 @@ fun PreviewRecipePopup(recipe: Recipe, onDismiss: () -> Unit) {
 }
 
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun CreateRecipePreview() {
     CreateRecipeScreen()

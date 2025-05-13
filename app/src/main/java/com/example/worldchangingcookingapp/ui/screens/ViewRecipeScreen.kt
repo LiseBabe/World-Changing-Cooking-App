@@ -122,7 +122,7 @@ fun ViewRecipeScreen(recipe : Recipe) {
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun PreviewRecipeScreen() {
     ViewRecipeScreen(
