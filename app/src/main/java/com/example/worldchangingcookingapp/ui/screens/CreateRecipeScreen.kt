@@ -1,5 +1,7 @@
 package com.example.worldchangingcookingapp.ui.screens
 
+import android.content.Context
+import android.view.Surface
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,17 +23,22 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.worldchangingcookingapp.form.RecipeFormViewModel
+import com.example.worldchangingcookingapp.viewmodel.RecipeFormViewModel
 import com.example.worldchangingcookingapp.form.StepItemFactory
 import com.example.worldchangingcookingapp.form.fields.DurationField
 import com.example.worldchangingcookingapp.form.fields.LargeTextField
@@ -45,18 +52,18 @@ import com.example.worldchangingcookingapp.models.IngredientItemFactory
 import com.example.worldchangingcookingapp.models.Ingredients
 import com.example.worldchangingcookingapp.models.Price
 import com.example.worldchangingcookingapp.models.TypeOfRecipe
+import com.example.worldchangingcookingapp.viewmodel.PostResult
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.UUID
 import kotlin.time.Duration.Companion.minutes
 
 fun blankRecipe(): Recipe {
     return Recipe(
-        id = "",
         title = "",
         authorId = "",
         authorName = "",
         authorProfilePath = "",
         description = "",
-        publicationDate = "",
         difficulty = Difficulty.MEDIUM,
         price = Price.MODERATE,
         typeOfRecipe = TypeOfRecipe.MAIN_COURSE,
@@ -76,6 +83,31 @@ fun CreateRecipeScreen(formModel : RecipeFormViewModel = viewModel(), recipe: Re
 
     var recipe by remember { mutableStateOf(recipe) }
     var isPreviewVisible by remember { mutableStateOf(false) }
+    var isResultsVisible by remember { mutableStateOf(false) }
+    var resultTitle by remember { mutableStateOf("") }
+    var resultMessage by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        formModel.postStatus.collect { result ->
+            when (result) {
+                is PostResult.Success -> {
+                    resultTitle = "Success"
+                    resultMessage = "Recipe Published!"
+                    isResultsVisible = true
+                    formModel.form.clear()
+                    recipe = blankRecipe()
+                }
+                is PostResult.Error -> {
+                    resultTitle = "Error"
+                    resultMessage = result.message
+                    isResultsVisible = true
+                }
+            }
+        }
+    }
+
+
+
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(8.dp)
     ) {
@@ -185,7 +217,7 @@ fun CreateRecipeScreen(formModel : RecipeFormViewModel = viewModel(), recipe: Re
             Spacer(Modifier.padding(12.dp))
             OutlinedButton(
                 onClick = {
-                    recipe = formModel.form.toRecipe(recipe)
+                    recipe = formModel.getRecipe()
                     isPreviewVisible = true
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
@@ -201,6 +233,7 @@ fun CreateRecipeScreen(formModel : RecipeFormViewModel = viewModel(), recipe: Re
             Spacer(Modifier.padding(12.dp))
             OutlinedButton(
                 onClick = {
+                    formModel.publishRecipe()
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 contentPadding = PaddingValues(
@@ -219,11 +252,37 @@ fun CreateRecipeScreen(formModel : RecipeFormViewModel = viewModel(), recipe: Re
             isPreviewVisible = false
         }
     }
+    if (isResultsVisible) {
+        PublishResultDialog(resultTitle, resultMessage) {
+            isResultsVisible = false
+        }
+    }
+}
+
+@Composable
+fun PublishResultDialog(title: String, message: String, onDismiss: () -> Unit) {
+    Dialog(onDismissRequest = {
+        onDismiss.invoke()
+    }) {
+        Surface {
+            Column (
+                modifier = Modifier.padding(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(title, style = MaterialTheme.typography.headlineSmall)
+                Text(message, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
+                OutlinedButton(
+                    onClick = onDismiss
+                ) {
+                    Text("Ok")
+                }
+            }
+        }
+    }
 }
 
 @Composable
 fun PreviewRecipePopup(recipe: Recipe, onDismiss: () -> Unit) {
-    println("** Popup Shown **")
     Dialog(onDismissRequest = {
         onDismiss.invoke()
     },
@@ -258,7 +317,6 @@ fun PreviewRecipePopup(recipe: Recipe, onDismiss: () -> Unit) {
             }
         }
     }
-
 }
 
 

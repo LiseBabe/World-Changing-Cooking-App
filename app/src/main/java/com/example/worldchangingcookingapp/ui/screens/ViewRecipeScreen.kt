@@ -26,7 +26,6 @@ import com.example.worldchangingcookingapp.models.Ingredients
 import com.example.worldchangingcookingapp.models.Price
 import com.example.worldchangingcookingapp.models.Recipe
 import com.example.worldchangingcookingapp.models.TypeOfRecipe
-import java.util.UUID
 import kotlin.time.Duration.Companion.minutes
 
 @Composable
@@ -36,7 +35,8 @@ fun ViewRecipeScreen(recipe : Recipe) {
         //Poster Here
 
         Text(recipe.title, style = MaterialTheme.typography.headlineLarge)
-        Text(recipe.publicationDate, style = MaterialTheme.typography.labelSmall)
+        Text("By ${recipe.authorName}", style = MaterialTheme.typography.labelSmall)
+        Text(recipe.publicationDate?.toString() ?: "10/9/2025", style = MaterialTheme.typography.labelSmall)
         //add interaction buttons here (saving, favoriting, liking, etc)
         Spacer(Modifier.padding(8.dp))
         Text(recipe.description, style = MaterialTheme.typography.bodyMedium)
@@ -129,7 +129,6 @@ fun PreviewRecipeScreen() {
         Recipe(
             id = "",
             title = "Banana Bread",
-            publicationDate = "1/5/2025",
             authorId = "",
             authorName = "Jeremy Beremy",
             authorProfilePath = "",
