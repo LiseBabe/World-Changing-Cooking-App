@@ -1,9 +1,10 @@
 package com.example.worldchangingcookingapp.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,16 +15,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,34 +35,41 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.worldchangingcookingapp.R
 import com.example.worldchangingcookingapp.models.User
 import com.example.worldchangingcookingapp.database.Users
+import com.example.worldchangingcookingapp.viewmodel.ProfileViewModel
 
 @Composable
-fun ProfileScreen(profileImageRes: Int,
-                       user: User,
-                       label: String = "Followers")
-{
+fun ProfileScreen(viewModel: ProfileViewModel, onEditClick: () -> Unit, onClick: ()-> Unit) {
+    val user: User? = viewModel.user.value
+    val recipesIds: List<String>? = viewModel.user.value?.recipes
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Button(onClick = {
+            onClick
+        }) {
+            Text("Sign Out")
+        }
         Row(
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.profile_pic),
-                contentDescription = "Profile Picture",
+            AsyncImage(
+                model = user?.profilePicturePath,
+                contentDescription = "Profile picture",
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .size(160.dp)
+                    .size(120.dp)
                     .clip(CircleShape)
-                    .border(2.dp, Color.Gray, CircleShape)
             )
         }
 
@@ -69,23 +77,18 @@ fun ProfileScreen(profileImageRes: Int,
             horizontalArrangement = Arrangement.SpaceEvenly,
             modifier = Modifier.fillMaxWidth()
         ) {
-            ProfileStat("Recipes", "120")
-            ProfileStat("Followers", "4.5k")
-            ProfileStat("Following", "345")
+            user?.recipes?.let { ProfileStat("Recipe(s)", it.size) }
+            user?.friends?.let { ProfileStat("Friend(s)", it.size) }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Text(text = "john_doe", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text(text = "Photographer | Traveler 🌍\nLover of sunsets and beaches 🏖️")
+        Text(text = user?.displayName?: "No User Found" , fontWeight = FontWeight.Bold, fontSize = 18.sp)
 
         Spacer(modifier = Modifier.height(12.dp))
 
         Button(
-            onClick = { /* TODO: Handle click */ },
+            onClick = onEditClick,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Edit Profile")
@@ -93,7 +96,6 @@ fun ProfileScreen(profileImageRes: Int,
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Grid of photos
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
             modifier = Modifier.fillMaxSize(),
@@ -101,9 +103,11 @@ fun ProfileScreen(profileImageRes: Int,
             verticalArrangement = Arrangement.spacedBy(2.dp),
             horizontalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            items(30) { index ->
+            val numberRecipes = user?.recipes?.size
+            items(numberRecipes?:10) { index ->
+                // TODO: change the image to the image from each recipe -> use async image
                 Image(
-                    painter = painterResource(id = R.drawable.profile_pic), // TODO: change the image to the recipe one
+                    painter = painterResource(id = R.drawable.profile_pic),
                     contentDescription = "Post $index",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -117,17 +121,11 @@ fun ProfileScreen(profileImageRes: Int,
 }
 
 @Composable
-fun ProfileStat(label: String, count: String) {
+fun ProfileStat(label: String, count: Int) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = count, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        Text(text = count.toString(), fontWeight = FontWeight.Bold, fontSize = 16.sp)
         Text(text = label, fontSize = 14.sp)
     }
 }
 
-
-@Preview(showBackground = true)
-@Composable
-fun profilePreview(){
-    ProfileScreen(profileImageRes = R.drawable.profile_pic, user = Users().getUsers()[0] )
-}
 

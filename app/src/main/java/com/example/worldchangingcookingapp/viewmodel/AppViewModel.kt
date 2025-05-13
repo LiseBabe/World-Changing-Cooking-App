@@ -21,6 +21,7 @@ class AppViewModel (val auth: AccountService, val api: ApiService) : ViewModel()
             user.value = api.getUser(auth.currentUserId)
         }
     }
+
     fun signOut() {
         viewModelScope.launch {
             auth.signOut()

@@ -62,10 +62,10 @@ fun UserItemCard(
         Spacer(modifier = Modifier.width(16.dp))
 
         Column {
-            Text(text = user.name, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Text(text = "@${user.pseudo}", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(text = "${user.numberFriends} $label", fontSize = 14.sp, fontWeight = FontWeight.Medium)
-            Text(text = "${user.numberRecipes} recipes", fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            Text(text = user.displayName, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(text = "@${user.id}", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(text = "${user.friends.size} $label", fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            Text(text = "${user.recipes.size} recipes", fontSize = 14.sp, fontWeight = FontWeight.Medium)
         }
     }
 }
