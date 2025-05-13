@@ -11,12 +11,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.worldchangingcookingapp.viewmodel.AppViewModel
-import com.example.worldchangingcookingapp.viewmodel.RecipeViewModel
+import com.example.worldchangingcookingapp.viewmodel.HomePageViewModel
 
 @Composable
-fun HomePageScreen(navController: NavController, appViewModel: AppViewModel, recipeViewModel: RecipeViewModel) {
+fun HomePageScreen(navController: NavController, appViewModel: AppViewModel, homePageViewModel: HomePageViewModel) {
     val user by appViewModel.user
-    val recipes = recipeViewModel.recipes.collectAsState().value
+    val recipes = homePageViewModel.recipes.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -35,7 +35,7 @@ fun HomePageScreen(navController: NavController, appViewModel: AppViewModel, rec
         RecipeListScreen(
             recipes = recipes,
             onRecipeClick = {
-                recipeViewModel.setSelectedRecipe(it)
+                homePageViewModel.setSelectedRecipe(it)
                 navController.navigate("recipeDetail")
             }
         )

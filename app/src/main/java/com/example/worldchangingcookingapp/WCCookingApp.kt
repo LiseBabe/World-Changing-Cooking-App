@@ -61,10 +61,10 @@ import com.example.worldchangingcookingapp.ui.screens.RecipeDetailScreen
 import com.example.worldchangingcookingapp.ui.theme.WorldChangingCookingAppTheme
 import com.example.worldchangingcookingapp.viewmodel.AppViewModel
 import com.example.worldchangingcookingapp.viewmodel.DraftsViewModel
+import com.example.worldchangingcookingapp.viewmodel.HomePageViewModel
 import com.example.worldchangingcookingapp.viewmodel.LoginViewModel
 import com.example.worldchangingcookingapp.viewmodel.ProfileViewModel
 import com.example.worldchangingcookingapp.viewmodel.RecipeFormViewModel
-import com.example.worldchangingcookingapp.viewmodel.RecipeViewModel
 
 
 
@@ -72,10 +72,6 @@ import com.example.worldchangingcookingapp.viewmodel.RecipeViewModel
 fun WCCookingApp() {
     val appViewModel : AppViewModel = viewModel(
         factory = AppViewModel.Factory
-    )
-
-    val recipeViewModel: RecipeViewModel = viewModel(
-        factory = RecipeViewModel.Factory(appViewModel.api)
     )
 
     appViewModel.signIn()
@@ -99,7 +95,7 @@ fun WCCookingApp() {
                         startDestination = initialScreen,
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        appGraph(navController, appViewModel, recipeViewModel)
+                        appGraph(navController, appViewModel)
                     }
             }
         }
@@ -172,12 +168,16 @@ fun TopBar(onSignOut: () -> Unit) {
 }
 
 
-fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppViewModel, recipeViewModel : RecipeViewModel) {
+fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppViewModel) {
     composable<Home> {
+        val homePageViewModel: HomePageViewModel = viewModel(
+            factory = HomePageViewModel.Factory(appViewModel.api)
+        )
+
         HomePageScreen(
             navController = navController,
             appViewModel = appViewModel,
-            recipeViewModel = recipeViewModel,
+            homePageViewModel = homePageViewModel,
         )
     }
     composable<Drafts> {
@@ -232,14 +232,5 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
                 launchSingleTop = true
             }
         })
-    }
-    composable("recipeDetail") {
-        val recipe = recipeViewModel.selectedRecipe.collectAsState().value
-
-        if (recipe != null) {
-            RecipeDetailScreen(recipe = recipe, navController = navController)
-        } else {
-            Text("Error can't select the recipe", Modifier.padding(16.dp))
-        }
     }
 }
