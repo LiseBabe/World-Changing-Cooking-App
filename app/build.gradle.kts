@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
     implementation(libs.androidx.room.ktx)
+    implementation("io.coil-kt:coil-compose:2.4.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

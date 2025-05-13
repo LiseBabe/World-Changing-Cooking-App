@@ -20,9 +20,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,6 +43,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.worldchangingcookingapp.contants.CreateRecipe
 import com.example.worldchangingcookingapp.contants.Drafts
+import com.example.worldchangingcookingapp.contants.EditProfile
 import com.example.worldchangingcookingapp.contants.Home
 import com.example.worldchangingcookingapp.contants.Login
 import com.example.worldchangingcookingapp.contants.Profile
@@ -50,6 +53,7 @@ import com.example.worldchangingcookingapp.services.AccountService
 import com.example.worldchangingcookingapp.services.ApiService
 import com.example.worldchangingcookingapp.ui.screens.CreateRecipeScreen
 import com.example.worldchangingcookingapp.ui.screens.DraftsScreen
+import com.example.worldchangingcookingapp.ui.screens.EditProfileScreen
 import com.example.worldchangingcookingapp.ui.screens.LoginScreen
 import com.example.worldchangingcookingapp.ui.screens.ProfileScreen
 import com.example.worldchangingcookingapp.ui.screens.HomePageScreen
@@ -58,12 +62,10 @@ import com.example.worldchangingcookingapp.ui.theme.WorldChangingCookingAppTheme
 import com.example.worldchangingcookingapp.viewmodel.AppViewModel
 import com.example.worldchangingcookingapp.viewmodel.DraftsViewModel
 import com.example.worldchangingcookingapp.viewmodel.LoginViewModel
-import com.example.worldchangingcookingapp.viewmodel.RecipeViewModel
+import com.example.worldchangingcookingapp.viewmodel.ProfileViewModel
 import com.example.worldchangingcookingapp.viewmodel.RecipeFormViewModel
+import com.example.worldchangingcookingapp.viewmodel.RecipeViewModel
 
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlin.coroutines.coroutineContext
 
 
 @Composable
@@ -73,7 +75,7 @@ fun WCCookingApp() {
     )
 
     val recipeViewModel: RecipeViewModel = viewModel(
-        factory = RecipeViewModel.Factory(apiService)
+        factory = RecipeViewModel.Factory(appViewModel.api)
     )
 
     appViewModel.signIn()
