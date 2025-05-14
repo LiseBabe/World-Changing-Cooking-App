@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.worldchangingcookingapp.contants.ViewRecipe
 import com.example.worldchangingcookingapp.viewmodel.AppViewModel
 import com.example.worldchangingcookingapp.viewmodel.HomePageViewModel
 
@@ -35,8 +36,8 @@ fun HomePageScreen(navController: NavController, appViewModel: AppViewModel, hom
         RecipeListScreen(
             recipes = recipes,
             onRecipeClick = {
-                homePageViewModel.setSelectedRecipe(it)
-                navController.navigate("recipeDetail")
+                appViewModel.selectedRecipe = it
+                navController.navigate(ViewRecipe)
             }
         )
 

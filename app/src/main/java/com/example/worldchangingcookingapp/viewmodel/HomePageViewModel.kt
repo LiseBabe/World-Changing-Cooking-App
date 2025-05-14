@@ -20,20 +20,6 @@ class HomePageViewModel(
     private val _recipes = MutableStateFlow<List<Recipe>>(FakeRecipeDatabase.recipes)
     val recipes: StateFlow<List<Recipe>> = _recipes.asStateFlow()
 
-    private val _selectedRecipe = MutableStateFlow<Recipe?>(null)
-
-    fun setSelectedRecipe(recipe: Recipe) {
-        _selectedRecipe.value = recipe
-    }
-
-    fun loadRecipeById(recipeId: String) {
-        viewModelScope.launch {
-            val found = _recipes.value.find { it.id == recipeId }
-            _selectedRecipe.value = found
-            // TODO: replace with api request to firebase
-        }
-    }
-
     companion object {
         val Factory = { api: ApiService ->
             viewModelFactory {

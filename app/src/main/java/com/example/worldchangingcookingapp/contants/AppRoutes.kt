@@ -22,8 +22,6 @@ object ViewRecipe
 object Login
 @Serializable
 object Drafts
-@Serializable
-object RecipeDetail
 
 
 data class TopLevelRoute<T : Any>(val route : T, val icon : ImageVector, val label: String)

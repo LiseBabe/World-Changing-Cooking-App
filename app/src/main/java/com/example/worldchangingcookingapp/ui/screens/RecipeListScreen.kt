@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ShoppingCart
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -64,12 +67,16 @@ fun RecipeListScreen(recipes: List<Recipe>, onRecipeClick: (Recipe) -> Unit) {
                     // Other information
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("🕒 ${recipe.preparationTime.inWholeMinutes} min")
-                        Text("⭐ ${recipe.difficulty.name.lowercase().replaceFirstChar { it.uppercase() }}")
-                        Text("💰 ${when (recipe.price) {
-                            Price.CHEAP -> "CHEAP"
-                            Price.MODERATE -> "MODERATE"
-                            Price.EXPENSIVE -> "EXPENSIVE"
-                        }}")
+                        Icon(Icons.Rounded.Warning, contentDescription = "Warning")
+                        Text(recipe.difficulty.name.lowercase().replaceFirstChar { it.uppercase() })
+                        Icon(Icons.Rounded.ShoppingCart, contentDescription = "Price")
+                        Text(
+                            when (recipe.price) {
+                                Price.CHEAP -> "CHEAP"
+                                Price.MODERATE -> "MODERATE"
+                                Price.EXPENSIVE -> "EXPENSIVE"
+                            }
+                        )
                     }
                 }
             }
