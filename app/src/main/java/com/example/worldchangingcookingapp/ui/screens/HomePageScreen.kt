@@ -12,10 +12,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.worldchangingcookingapp.viewmodel.AppViewModel
 import com.example.worldchangingcookingapp.viewmodel.HomePageViewModel
+import com.example.worldchangingcookingapp.viewmodel.UserState
 
 @Composable
 fun HomePageScreen(navController: NavController, appViewModel: AppViewModel, homePageViewModel: HomePageViewModel) {
-    val user by appViewModel.user
+    val user = when(appViewModel.user) {
+        is UserState.SignedIn ->  { (appViewModel.user as UserState.SignedIn).user }
+        else -> null
+    }
     val recipes = homePageViewModel.recipes.collectAsState().value
 
     Column(
