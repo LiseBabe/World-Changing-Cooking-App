@@ -62,7 +62,6 @@ import com.example.worldchangingcookingapp.ui.screens.EditProfileScreen
 import com.example.worldchangingcookingapp.ui.screens.LoginScreen
 import com.example.worldchangingcookingapp.ui.screens.ProfileScreen
 import com.example.worldchangingcookingapp.ui.screens.HomePageScreen
-import com.example.worldchangingcookingapp.ui.screens.RecipeDetailScreen
 import com.example.worldchangingcookingapp.ui.screens.ViewRecipeScreen
 import com.example.worldchangingcookingapp.ui.theme.WorldChangingCookingAppTheme
 import com.example.worldchangingcookingapp.viewmodel.AppViewModel
@@ -257,13 +256,11 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
         )
     }
     composable<ViewRecipe> {
-        when {
-            appViewModel.selectedRecipe == null -> {
-                Text("No Recipe Found")
-            }
-            else -> {
-                ViewRecipeScreen(appViewModel.selectedRecipe!!)
-            }
+        val recipe = appViewModel.selectedRecipe
+        if (recipe != null) {
+            ViewRecipeScreen(recipe = recipe)
+        } else {
+            Text("Error : no recipe selected", Modifier.padding(16.dp))
         }
     }
     composable<Login> {
