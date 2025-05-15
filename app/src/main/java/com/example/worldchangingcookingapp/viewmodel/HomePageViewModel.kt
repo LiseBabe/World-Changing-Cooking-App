@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class RecipeViewModel(
+class HomePageViewModel(
     private val api: ApiService
 ) : ViewModel() {
 
@@ -21,7 +21,6 @@ class RecipeViewModel(
     val recipes: StateFlow<List<Recipe>> = _recipes.asStateFlow()
 
     private val _selectedRecipe = MutableStateFlow<Recipe?>(null)
-    val selectedRecipe: StateFlow<Recipe?> = _selectedRecipe.asStateFlow()
 
     fun setSelectedRecipe(recipe: Recipe) {
         _selectedRecipe.value = recipe
@@ -39,7 +38,7 @@ class RecipeViewModel(
         val Factory = { api: ApiService ->
             viewModelFactory {
                 initializer {
-                    RecipeViewModel(api)
+                    HomePageViewModel(api)
                 }
             }
         }

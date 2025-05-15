@@ -16,29 +16,41 @@ import com.example.worldchangingcookingapp.services.ApiService
 import com.example.worldchangingcookingapp.services.DatabaseService
 import kotlinx.coroutines.launch
 
+sealed interface UserState {
+    data class SignedIn(val user: User) : UserState
+    object SignedOut : UserState
+    object Loading : UserState
+    object Error : UserState
+}
+
 class AppViewModel (
     val auth: AccountService,
     val api: ApiService,
-    val database: DatabaseService) : ViewModel() {
+    val database: DatabaseService
+) : ViewModel() {
 
-    val loggedIn = mutableStateOf(auth.hasUser)
-    val user = mutableStateOf<User?>(null)
+    var loggedIn by mutableStateOf(auth.hasUser)
+    var user : UserState by mutableStateOf(UserState.SignedOut)
 
     var selectedRecipe by mutableStateOf<Recipe?>(null)
 
     fun signIn() {
-        loggedIn.value = auth.hasUser
         viewModelScope.launch {
-            user.value = api.getUser(auth.currentUserId)
-            print("User ${user.value?.displayName} Signed In")
+            user = UserState.Loading
+            user = try {
+                UserState.SignedIn(api.getUser(auth.currentUserId)!!)
+            } catch (e : Exception) {
+                UserState.Error
+            }
+            loggedIn = auth.hasUser
         }
     }
 
     fun signOut() {
         viewModelScope.launch {
             auth.signOut()
-            loggedIn.value = auth.hasUser
-            user.value = null
+            loggedIn = auth.hasUser
+            user = UserState.SignedOut
         }
     }
 
