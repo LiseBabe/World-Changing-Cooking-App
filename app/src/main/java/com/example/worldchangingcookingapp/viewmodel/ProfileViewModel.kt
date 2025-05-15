@@ -14,39 +14,39 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.worldchangingcookingapp.models.Recipe
 import com.example.worldchangingcookingapp.models.User
 import com.example.worldchangingcookingapp.services.AccountService
 import com.example.worldchangingcookingapp.services.ApiService
+import com.example.worldchangingcookingapp.services.DatabaseService
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-class ProfileViewModel(private val auth : AccountService, private val api : ApiService) : ViewModel() {
-    val user = mutableStateOf<User?>(null)
+class ProfileViewModel(
+    user : User?,
+    apiService : ApiService,
+    databaseService: DatabaseService
+) : ViewModel() {
+    var user by mutableStateOf(user)
+    var api by mutableStateOf(apiService)
+    var recipes by mutableStateOf<List<Recipe>?>(emptyList())
+    var isRecipesLoading by mutableStateOf(false)
 
-    var reload by mutableStateOf(false)
-    var hasError by mutableStateOf(false)
-
-
-    fun init() {
+    fun loadUserRecipes() {
         viewModelScope.launch {
-            user.value = api.getUser(auth.currentUserId)
+            isRecipesLoading = true
+            recipes = api.getRecipes(user?.recipes!!)
+            isRecipesLoading = false
         }
-    }
-
-    fun changeUserUsername(){
-        viewModelScope.launch {
-            //api.updateUser()
-        }
-    }
-
-    fun changeUserProfilePicture(){
-
     }
 
     companion object {
-        val Factory = { accountService : AccountService, apiService : ApiService ->
+        val Factory = { user : User?, apiService : ApiService, databaseService: DatabaseService ->
             viewModelFactory {
                 initializer {
-                    ProfileViewModel(accountService, apiService)
+                    ProfileViewModel(user, apiService, databaseService)
                 }
             }
         }

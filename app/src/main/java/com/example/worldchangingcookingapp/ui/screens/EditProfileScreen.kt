@@ -69,12 +69,13 @@ val profilePictures : List<String> = listOf(
 )
 
 @Composable
-fun EditProfileScreen(viewModel: ProfileViewModel, onSave: () -> Unit) {
-    var user: User? = viewModel.user.value
-    var username by remember { mutableStateOf(user?.displayName?: "example") }
-    var email by remember { mutableStateOf(user?.email ?: "example@gmail.com") }
+fun EditProfileScreen(user: User, onSave: (User) -> Unit) {
+    var user by remember { mutableStateOf(user) }
+    var username by remember { mutableStateOf(user.displayName?: "example") }
+    var email by remember { mutableStateOf(user.email ?: "example@gmail.com") }
+    var profilePicturePath by remember { mutableStateOf(user.profilePicturePath?: "") }
     var showImageSelector by remember { mutableStateOf(false) }
-    var showStringSelector by remember { mutableStateOf(false) }
+    var showUsernameSelector by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -86,31 +87,15 @@ fun EditProfileScreen(viewModel: ProfileViewModel, onSave: () -> Unit) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(text = "Current Username :")
-        Text(text =  username)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { showStringSelector = true },
-            modifier = Modifier.fillMaxWidth()
-        ){
-            Text("Change Username")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(text = "Current e-mail :")
-        Text(text = email)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { showStringSelector = true },
-            modifier = Modifier.fillMaxWidth()
-        ){
-            Text("Change Email")
-        }
+        Text(text = "Current Profile Picture :")
+        AsyncImage(
+            model = profilePicturePath,
+            contentDescription = "Profile picture",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(120.dp)
+                .clip(CircleShape)
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -123,28 +108,50 @@ fun EditProfileScreen(viewModel: ProfileViewModel, onSave: () -> Unit) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        Text(text = "Current Username :")
+        Text(text =  username)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { showUsernameSelector = true },
+            modifier = Modifier.fillMaxWidth()
+        ){
+            Text("Change Username")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Button(
             onClick = {
-                user = user?.copy(displayName = username, email = email)
-                onSave()
+                user = user.copy(displayName = username, profilePicturePath = profilePicturePath)
+                onSave(user)
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Back")
+            Text("Save changes")
         }
     }
 
-    if (showStringSelector) {
+    if (showUsernameSelector) {
         StringSelectorPopup(
             currentValue = username,
-            onSave = {},
-            onDismiss = { showStringSelector = false }
+            onSave = { newUsername : String ->
+                showUsernameSelector = false
+                username = newUsername
+            },
+            onDismiss = { showUsernameSelector = false }
         )
     }
 
     if (showImageSelector) {
         ProfilePictureSelectorPopup(
-            onImageSelected = { },
+            onImageSelected = { newProfilePicturePath: String ->
+                profilePicturePath = newProfilePicturePath
+                showImageSelector = false
+            },
             onDismiss = { showImageSelector = false }
         )
     }

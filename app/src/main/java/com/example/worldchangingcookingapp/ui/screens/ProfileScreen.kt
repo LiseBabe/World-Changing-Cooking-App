@@ -23,6 +23,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -35,28 +36,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.worldchangingcookingapp.R
+import com.example.worldchangingcookingapp.data.FakeRecipeDatabase
 import com.example.worldchangingcookingapp.models.User
 import com.example.worldchangingcookingapp.database.Users
+import com.example.worldchangingcookingapp.models.Recipe
 import com.example.worldchangingcookingapp.viewmodel.ProfileViewModel
+import com.example.worldchangingcookingapp.viewmodel.RecipeViewModel
+import kotlinx.coroutines.launch
 
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel, onEditClick: () -> Unit, onClick: ()-> Unit) {
-    val user: User? = viewModel.user.value
-    val recipesIds: List<String>? = viewModel.user.value?.recipes
-
+fun ProfileScreen(viewModel: ProfileViewModel, recipeViewModel: RecipeViewModel, navController: NavController, onEditClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Button(onClick = {
-            onClick
-        }) {
-            Text("Sign Out")
-        }
         Row(
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier
@@ -64,7 +63,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, onEditClick: () -> Unit, onClick:
                 .padding(16.dp)
         ) {
             AsyncImage(
-                model = user?.profilePicturePath,
+                model = viewModel.user?.profilePicturePath,
                 contentDescription = "Profile picture",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -77,13 +76,13 @@ fun ProfileScreen(viewModel: ProfileViewModel, onEditClick: () -> Unit, onClick:
             horizontalArrangement = Arrangement.SpaceEvenly,
             modifier = Modifier.fillMaxWidth()
         ) {
-            user?.recipes?.let { ProfileStat("Recipe(s)", it.size) }
-            user?.friends?.let { ProfileStat("Friend(s)", it.size) }
+            viewModel.user?.recipes?.let { ProfileStat("Recipe(s)", it.size) }
+            viewModel.user?.friends?.let { ProfileStat("Friend(s)", it.size) }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Text(text = user?.displayName?: "No User Found" , fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        Text(text = viewModel.user?.displayName?: "No User Found" , fontWeight = FontWeight.Bold, fontSize = 18.sp)
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -96,27 +95,19 @@ fun ProfileScreen(viewModel: ProfileViewModel, onEditClick: () -> Unit, onClick:
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(2.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-            horizontalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            val numberRecipes = user?.recipes?.size
-            items(numberRecipes?:10) { index ->
-                // TODO: change the image to the image from each recipe -> use async image
-                Image(
-                    painter = painterResource(id = R.drawable.profile_pic),
-                    contentDescription = "Post $index",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .aspectRatio(1f)
-                        .clip(RoundedCornerShape(4.dp))
-                    // TODO: add a link to the recipe post
-                )
-            }
+
+        if (viewModel.isRecipesLoading) {
+            Text("Chargement des recettes...")
+        } else {
+            RecipeListScreen(
+                recipes = FakeRecipeDatabase.recipes,
+                onRecipeClick = {
+                    recipeViewModel.setSelectedRecipe(it)
+                    navController.navigate("recipeDetail")
+                }
+            )
         }
+
     }
 }
 

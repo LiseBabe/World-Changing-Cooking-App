@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -49,6 +50,7 @@ import com.example.worldchangingcookingapp.contants.Login
 import com.example.worldchangingcookingapp.contants.Profile
 import com.example.worldchangingcookingapp.contants.ViewRecipe
 import com.example.worldchangingcookingapp.contants.topLevelRoutes
+import com.example.worldchangingcookingapp.models.User
 import com.example.worldchangingcookingapp.services.AccountService
 import com.example.worldchangingcookingapp.services.ApiService
 import com.example.worldchangingcookingapp.ui.screens.CreateRecipeScreen
@@ -65,7 +67,7 @@ import com.example.worldchangingcookingapp.viewmodel.LoginViewModel
 import com.example.worldchangingcookingapp.viewmodel.ProfileViewModel
 import com.example.worldchangingcookingapp.viewmodel.RecipeFormViewModel
 import com.example.worldchangingcookingapp.viewmodel.RecipeViewModel
-
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -205,21 +207,36 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
         }
     }
     composable<Profile> {
-        val viewModel : ProfileViewModel = viewModel(
-            factory = ProfileViewModel.Factory(appViewModel.auth, appViewModel.api)
+        val profileViewModel : ProfileViewModel = viewModel(
+            factory = ProfileViewModel.Factory(
+                appViewModel.user.value!!,
+                appViewModel.api,
+                appViewModel.database
+            )
         )
-        ProfileScreen(viewModel,
-            onEditClick = { navController.navigate(EditProfile) },
-            onClick = {appViewModel.signOut()}
+        // profileViewModel.loadUserRecipes()
+        ProfileScreen(
+            profileViewModel,
+            recipeViewModel,
+            navController,
+            onEditClick = {
+                navController.navigate(EditProfile)
+            }
         )
     }
     composable<EditProfile> {
-        val viewModel : ProfileViewModel = viewModel(
-            factory = ProfileViewModel.Factory(appViewModel.auth, appViewModel.api)
+        EditProfileScreen(
+            appViewModel.user.value!!,
+            onSave = {
+                user: User ->
+                appViewModel.viewModelScope.launch(){
+                    appViewModel.api.updateUser(user)
+                }
+                appViewModel.user.value = user
+                navController.navigate(Profile)
+            }
+
         )
-        EditProfileScreen(viewModel, onSave = {
-            navController.navigate(Profile)
-        })
     }
     composable<ViewRecipe> { }
     composable<Login> {
