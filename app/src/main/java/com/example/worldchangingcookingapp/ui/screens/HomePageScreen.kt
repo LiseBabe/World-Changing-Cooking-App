@@ -11,12 +11,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.worldchangingcookingapp.contants.ViewRecipe
+import com.example.worldchangingcookingapp.models.Recipe
 import com.example.worldchangingcookingapp.viewmodel.AppViewModel
 import com.example.worldchangingcookingapp.viewmodel.HomePageViewModel
 import com.example.worldchangingcookingapp.viewmodel.UserState
 
 @Composable
-fun HomePageScreen(navController: NavController, appViewModel: AppViewModel, homePageViewModel: HomePageViewModel) {
+fun HomePageScreen(appViewModel: AppViewModel, homePageViewModel: HomePageViewModel, onSelect: (Recipe) -> Unit) {
     val user = when(appViewModel.user) {
         is UserState.SignedIn ->  { (appViewModel.user as UserState.SignedIn).user }
         else -> null
@@ -39,10 +40,7 @@ fun HomePageScreen(navController: NavController, appViewModel: AppViewModel, hom
 
         RecipeListScreen(
             recipes = recipes,
-            onRecipeClick = {
-                appViewModel.selectedRecipe = it
-                navController.navigate(ViewRecipe)
-            }
+            onRecipeClick = onSelect
         )
 
 

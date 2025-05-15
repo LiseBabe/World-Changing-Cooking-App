@@ -2,10 +2,13 @@ package com.example.worldchangingcookingapp
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
@@ -18,10 +21,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,10 +48,12 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.worldchangingcookingapp.contants.AppBarType
 import com.example.worldchangingcookingapp.contants.CreateRecipe
 import com.example.worldchangingcookingapp.contants.Drafts
 import com.example.worldchangingcookingapp.contants.EditProfile
@@ -75,49 +84,114 @@ import com.example.worldchangingcookingapp.viewmodel.UserState
 
 
 @Composable
-fun WCCookingApp() {
+fun WCCookingApp(
+    navController : NavHostController = rememberNavController(),
+    windowSize: WindowSizeClass
+) {
     val appViewModel : AppViewModel = viewModel(
         factory = AppViewModel.Factory
     )
 
-    appViewModel.signIn()
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentScreen = backStackEntry?.destination?.route
+
+    val appBarType: AppBarType = when (windowSize.heightSizeClass) {
+        WindowHeightSizeClass.Compact -> {
+            AppBarType.RAIL
+        }
+        else -> {
+            AppBarType.REGULAR
+        }
+    }
+
+    val canNavigateBack = navController.previousBackStackEntry != null && currentScreen != null &&
+            !topLevelRoutes.any { route -> route.route::class.qualifiedName == currentScreen }
 
     WorldChangingCookingAppTheme {
 
         Surface (color = MaterialTheme.colorScheme.background) {
-            var navController = rememberNavController()
-
             Scaffold (
-                    topBar = { if (appViewModel.loggedIn) TopBar(onSignOut = { appViewModel.signOut() }) },
-                    bottomBar = { if (appViewModel.loggedIn) { BottomNavBar(navController) } }
+                    topBar = { if (appViewModel.loggedIn && appBarType == AppBarType.REGULAR) TopBar(
+                        navigateUp = { navController.navigateUp() },
+                        canNavigateBack = canNavigateBack,
+                        onSignOut = { appViewModel.signOut() }
+                    ) },
+                    bottomBar = { if (appViewModel.loggedIn && appBarType == AppBarType.REGULAR) { BottomNavBar(navController) } }
             ){
                 innerPadding ->
-                when(appViewModel.user) {
-                    is UserState.SignedIn ->
-                        NavHost(
-                            navController = navController,
-                            startDestination = Home,
-                            modifier = Modifier.padding(innerPadding)
-                        ) {
-                            appGraph(navController, appViewModel)
+                    when (appViewModel.user) {
+                        is UserState.SignedIn ->
+                            Row {
+                                if (appBarType == AppBarType.RAIL) {
+                                    Rail(
+                                        navController = navController,
+                                        navigateUp = { navController.navigateUp() },
+                                        canNavigateBack = canNavigateBack
+                                    )
+                                }
+                                NavHost(
+                                    navController = navController,
+                                    startDestination = Home,
+                                    modifier = Modifier.padding(innerPadding)
+                                ) {
+                                    appGraph(navController, appViewModel)
+                                }
+                            }
+                        is UserState.Loading -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(Icons.Default.Refresh, "Loading")
+                            }
                         }
-                    is UserState.Loading -> {
-                        Box (modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center) {
-                            Icon(Icons.Default.Refresh, "Loading")
+
+                        else -> {
+                            val viewModel: LoginViewModel = viewModel(
+                                factory = LoginViewModel.Factory(
+                                    appViewModel.auth,
+                                    appViewModel.api
+                                )
+                            )
+                            LoginScreen(viewModel, onSuccess = {
+                                appViewModel.signIn()
+                            })
                         }
                     }
-                    else -> {
-                        val viewModel: LoginViewModel = viewModel(
-                            factory = LoginViewModel.Factory(appViewModel.auth, appViewModel.api)
-                        )
-                        LoginScreen(viewModel, onSuccess = {
-                            appViewModel.signIn()
-                        })
-                    }
-                }
 
             }
+        }
+    }
+}
+
+@Composable
+fun Rail(
+    navController : NavHostController,
+    navigateUp : () -> Unit,
+    canNavigateBack: Boolean
+) {
+    NavigationRail {
+        val currentDestination = navController.currentBackStackEntryAsState().value?.destination
+        if (canNavigateBack) {
+            IconButton(onClick = navigateUp) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack,
+                    "Go Back")
+            }
+        }
+        topLevelRoutes.forEach { topLevelRoute ->
+            NavigationRailItem(
+                icon = { Icon(topLevelRoute.icon, topLevelRoute.label) },
+                selected = currentDestination?.hierarchy?.any { it.hasRoute(topLevelRoute.route::class) } == true,
+                onClick = {
+                    navController.navigate(topLevelRoute.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
         }
     }
 }
@@ -147,7 +221,10 @@ fun BottomNavBar(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(onSignOut: () -> Unit) {
+fun TopBar(
+    canNavigateBack: Boolean,
+    navigateUp: () -> Unit,
+    onSignOut: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
 
     CenterAlignedTopAppBar(
@@ -183,6 +260,16 @@ fun TopBar(onSignOut: () -> Unit) {
                     }
                 )
             }
+        },
+        navigationIcon = {
+            if (canNavigateBack) {
+                IconButton(onClick = navigateUp) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        "Go Back"
+                    )
+                }
+            }
         }
     )
 }
@@ -195,10 +282,12 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
         )
 
         HomePageScreen(
-            navController = navController,
             appViewModel = appViewModel,
             homePageViewModel = homePageViewModel,
-        )
+        ) {
+                appViewModel.selectedRecipe = it
+                navController.navigate(ViewRecipe)
+        }
     }
     composable<Drafts> {
         val viewModel: DraftsViewModel = viewModel(
@@ -270,6 +359,7 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
         LoginScreen(viewModel, onSuccess = {
             appViewModel.signIn()
             navController.navigate(Home) {
+                popUpTo(navController.graph.findStartDestination().id)
                 launchSingleTop = true
             }
         })

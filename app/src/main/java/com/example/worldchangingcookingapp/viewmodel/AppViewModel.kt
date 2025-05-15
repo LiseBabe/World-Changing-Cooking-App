@@ -34,6 +34,10 @@ class AppViewModel (
 
     var selectedRecipe by mutableStateOf<Recipe?>(null)
 
+    init {
+        signIn()
+    }
+
     fun signIn() {
         viewModelScope.launch {
             user = UserState.Loading

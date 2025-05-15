@@ -57,6 +57,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.navigation.fragment)
     implementation(libs.androidx.navigation.ui)
+    implementation(libs.androidx.foundation.layout)
+    implementation(libs.material3.window.size.class1)
     implementation(libs.androidx.navigation.dynamic.features.fragment)
 
     implementation(platform(libs.firebase.bom))
