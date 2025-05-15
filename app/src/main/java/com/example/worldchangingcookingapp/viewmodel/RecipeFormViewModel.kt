@@ -28,12 +28,19 @@ sealed class PostResult {
 }
 
 class RecipeFormViewModel (
-    val user: User,
+    userState: UserState,
     val api: ApiService,
     val db: DatabaseService,
     var recipe : Recipe?
 ) : ViewModel() {
     var form = RecipeForm()
+
+    val user = when (userState) {
+        is UserState.SignedIn -> {
+            userState.user
+        }
+        else -> null
+    }
 
     private val _postStatus = MutableSharedFlow<PostResult>()
     val postStatus = _postStatus.asSharedFlow()
@@ -47,9 +54,9 @@ class RecipeFormViewModel (
             recipe = blankRecipe()
         }
         form.collectValues(recipe!!)
-        recipe?.authorId = user.id!!
-        recipe?.authorName = user.displayName
-        recipe?.authorProfilePath = user.profilePicturePath
+        recipe?.authorId = user!!.id!!
+        recipe?.authorName = user!!.displayName
+        recipe?.authorProfilePath = user!!.profilePicturePath
         return recipe!!
     }
 
@@ -64,7 +71,7 @@ class RecipeFormViewModel (
         recipe = buildRecipe()
         viewModelScope.launch {
             try {
-                api.addRecipe(user, recipe!!)
+                api.addRecipe(user!!, recipe!!)
                 _postStatus.emit(PostResult.Success)
                 recipe?.cacheCategory = CacheCategory.REGULAR
                 saveRecipe(recipe!!)
@@ -88,7 +95,7 @@ class RecipeFormViewModel (
     }
 
     companion object {
-        val Factory = { user : User, apiService : ApiService, databaseService: DatabaseService, recipe : Recipe? ->
+        val Factory = { user : UserState, apiService : ApiService, databaseService: DatabaseService, recipe : Recipe? ->
             viewModelFactory {
                 initializer {
                     RecipeFormViewModel(user, apiService, databaseService, recipe)

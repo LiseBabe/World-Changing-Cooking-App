@@ -1,10 +1,13 @@
 package com.example.worldchangingcookingapp
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
@@ -57,6 +60,8 @@ import com.example.worldchangingcookingapp.ui.screens.EditProfileScreen
 import com.example.worldchangingcookingapp.ui.screens.LoginScreen
 import com.example.worldchangingcookingapp.ui.screens.ProfileScreen
 import com.example.worldchangingcookingapp.ui.screens.HomePageScreen
+import com.example.worldchangingcookingapp.ui.screens.RecipeDetailScreen
+import com.example.worldchangingcookingapp.ui.screens.ViewRecipeScreen
 import com.example.worldchangingcookingapp.ui.screens.ViewRecipeScreen
 import com.example.worldchangingcookingapp.ui.theme.WorldChangingCookingAppTheme
 import com.example.worldchangingcookingapp.viewmodel.AppViewModel
@@ -65,7 +70,7 @@ import com.example.worldchangingcookingapp.viewmodel.HomePageViewModel
 import com.example.worldchangingcookingapp.viewmodel.LoginViewModel
 import com.example.worldchangingcookingapp.viewmodel.ProfileViewModel
 import com.example.worldchangingcookingapp.viewmodel.RecipeFormViewModel
-
+import com.example.worldchangingcookingapp.viewmodel.UserState
 
 
 @Composable
@@ -76,27 +81,41 @@ fun WCCookingApp() {
 
     appViewModel.signIn()
 
-    val loggedIn by remember { appViewModel.loggedIn }
-
     WorldChangingCookingAppTheme {
 
         Surface (color = MaterialTheme.colorScheme.background) {
             var navController = rememberNavController()
 
-            val initialScreen = if (loggedIn) Home else Login
-
             Scaffold (
-                    topBar = { if (loggedIn) TopBar(onSignOut = { appViewModel.signOut() }) },
-                    bottomBar = { if (loggedIn) { BottomNavBar(navController) } }
+                    topBar = { if (appViewModel.loggedIn) TopBar(onSignOut = { appViewModel.signOut() }) },
+                    bottomBar = { if (appViewModel.loggedIn) { BottomNavBar(navController) } }
             ){
                 innerPadding ->
-                    NavHost(
-                        navController = navController,
-                        startDestination = initialScreen,
-                        modifier = Modifier.padding(innerPadding)
-                    ) {
-                        appGraph(navController, appViewModel)
+                when(appViewModel.user) {
+                    is UserState.SignedIn ->
+                        NavHost(
+                            navController = navController,
+                            startDestination = Home,
+                            modifier = Modifier.padding(innerPadding)
+                        ) {
+                            appGraph(navController, appViewModel)
+                        }
+                    is UserState.Loading -> {
+                        Box (modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center) {
+                            Icon(Icons.Default.Refresh, "Loading")
+                        }
                     }
+                    else -> {
+                        val viewModel: LoginViewModel = viewModel(
+                            factory = LoginViewModel.Factory(appViewModel.auth, appViewModel.api)
+                        )
+                        LoginScreen(viewModel, onSuccess = {
+                            appViewModel.signIn()
+                        })
+                    }
+                }
+
             }
         }
     }
@@ -194,7 +213,7 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
     composable<CreateRecipe> {
         val viewModel: RecipeFormViewModel = viewModel(
             factory = RecipeFormViewModel.Factory(
-                appViewModel.user.value!!,
+                appViewModel.user,
                 appViewModel.api,
                 appViewModel.database,
                 appViewModel.selectedRecipe
@@ -222,11 +241,13 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
         })
     }
     composable<ViewRecipe> {
-        val recipe = appViewModel.selectedRecipe
-        if (recipe != null) {
-            ViewRecipeScreen(recipe = recipe)
-        } else {
-            Text("Error : no recipe selected", Modifier.padding(16.dp))
+        when {
+            appViewModel.selectedRecipe == null -> {
+                Text("No Recipe Found")
+            }
+            else -> {
+                ViewRecipeScreen(appViewModel.selectedRecipe!!)
+            }
         }
     }
     composable<Login> {
