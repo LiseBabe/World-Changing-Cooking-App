@@ -48,6 +48,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.worldchangingcookingapp.models.User
 import coil.compose.AsyncImage
 import com.example.worldchangingcookingapp.viewmodel.ProfileViewModel
+import com.example.worldchangingcookingapp.viewmodel.UserState
 
 
 val profilePictures : List<String> = listOf(
@@ -69,11 +70,16 @@ val profilePictures : List<String> = listOf(
 )
 
 @Composable
-fun EditProfileScreen(user: User, onSave: (User) -> Unit) {
-    var user by remember { mutableStateOf(user) }
-    var username by remember { mutableStateOf(user.displayName?: "example") }
-    var email by remember { mutableStateOf(user.email ?: "example@gmail.com") }
-    var profilePicturePath by remember { mutableStateOf(user.profilePicturePath?: "") }
+fun EditProfileScreen(userState: UserState, onSave: (User) -> Unit) {
+    var user = when (userState) {
+        is UserState.SignedIn -> {
+            userState.user
+        }
+        else -> null
+    }
+    var username by remember { mutableStateOf(user?.displayName?: "example") }
+    var email by remember { mutableStateOf(user?.email ?: "example@gmail.com") }
+    var profilePicturePath by remember { mutableStateOf(user?.profilePicturePath?: "") }
     var showImageSelector by remember { mutableStateOf(false) }
     var showUsernameSelector by remember { mutableStateOf(false) }
 
@@ -126,8 +132,8 @@ fun EditProfileScreen(user: User, onSave: (User) -> Unit) {
 
         Button(
             onClick = {
-                user = user.copy(displayName = username, profilePicturePath = profilePicturePath)
-                onSave(user)
+                user = user?.copy(displayName = username, profilePicturePath = profilePicturePath)
+                onSave(user!!)
             },
             modifier = Modifier.fillMaxWidth()
         ) {

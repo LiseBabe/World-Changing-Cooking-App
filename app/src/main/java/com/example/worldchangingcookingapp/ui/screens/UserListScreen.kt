@@ -69,9 +69,3 @@ fun UserItemCard(
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun UserListScreenPreview(){
-    UserListScreen(Users().getUsers())
-}

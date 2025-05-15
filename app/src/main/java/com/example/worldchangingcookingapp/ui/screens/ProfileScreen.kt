@@ -45,11 +45,10 @@ import com.example.worldchangingcookingapp.models.User
 import com.example.worldchangingcookingapp.database.Users
 import com.example.worldchangingcookingapp.models.Recipe
 import com.example.worldchangingcookingapp.viewmodel.ProfileViewModel
-import com.example.worldchangingcookingapp.viewmodel.RecipeViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel, recipeViewModel: RecipeViewModel, navController: NavController, onEditClick: () -> Unit) {
+fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController, onEditClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -102,7 +101,6 @@ fun ProfileScreen(viewModel: ProfileViewModel, recipeViewModel: RecipeViewModel,
             RecipeListScreen(
                 recipes = FakeRecipeDatabase.recipes,
                 onRecipeClick = {
-                    recipeViewModel.setSelectedRecipe(it)
                     navController.navigate("recipeDetail")
                 }
             )

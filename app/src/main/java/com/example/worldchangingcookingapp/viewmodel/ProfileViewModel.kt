@@ -25,11 +25,16 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(
-    user : User?,
+    userState : UserState,
     apiService : ApiService,
     databaseService: DatabaseService
 ) : ViewModel() {
-    var user by mutableStateOf(user)
+    val user = when (userState) {
+        is UserState.SignedIn -> {
+            userState.user
+        }
+        else -> null
+    }
     var api by mutableStateOf(apiService)
     var recipes by mutableStateOf<List<Recipe>?>(emptyList())
     var isRecipesLoading by mutableStateOf(false)
@@ -43,7 +48,7 @@ class ProfileViewModel(
     }
 
     companion object {
-        val Factory = { user : User?, apiService : ApiService, databaseService: DatabaseService ->
+        val Factory = { user : UserState, apiService : ApiService, databaseService: DatabaseService ->
             viewModelFactory {
                 initializer {
                     ProfileViewModel(user, apiService, databaseService)

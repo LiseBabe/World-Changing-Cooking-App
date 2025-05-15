@@ -71,7 +71,6 @@ import com.example.worldchangingcookingapp.viewmodel.HomePageViewModel
 import com.example.worldchangingcookingapp.viewmodel.LoginViewModel
 import com.example.worldchangingcookingapp.viewmodel.ProfileViewModel
 import com.example.worldchangingcookingapp.viewmodel.RecipeFormViewModel
-import com.example.worldchangingcookingapp.viewmodel.RecipeViewModel
 import kotlinx.coroutines.launch
 import com.example.worldchangingcookingapp.viewmodel.UserState
 
@@ -229,7 +228,7 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
     composable<Profile> {
         val profileViewModel : ProfileViewModel = viewModel(
             factory = ProfileViewModel.Factory(
-                appViewModel.user.value!!,
+                appViewModel.user,
                 appViewModel.api,
                 appViewModel.database
             )
@@ -237,7 +236,6 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
         // profileViewModel.loadUserRecipes()
         ProfileScreen(
             profileViewModel,
-            recipeViewModel,
             navController,
             onEditClick = {
                 navController.navigate(EditProfile)
@@ -246,13 +244,13 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
     }
     composable<EditProfile> {
         EditProfileScreen(
-            appViewModel.user.value!!,
+            appViewModel.user,
             onSave = {
                 user: User ->
                 appViewModel.viewModelScope.launch(){
                     appViewModel.api.updateUser(user)
                 }
-                appViewModel.user.value = user
+                // appViewModel.user. = user TODO: change back the user in appViewModel
                 navController.navigate(Profile)
             }
 
