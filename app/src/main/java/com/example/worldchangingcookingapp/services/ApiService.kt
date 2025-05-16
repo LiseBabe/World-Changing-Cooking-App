@@ -3,6 +3,7 @@ package com.example.worldchangingcookingapp.services
 import com.example.worldchangingcookingapp.models.Recipe
 import com.example.worldchangingcookingapp.models.User
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
@@ -69,35 +70,13 @@ class ApiService {
     }
 
     suspend fun addRecipe(self: User, recipe: Recipe) {
-        val recipeMap = mapOf(
-            "id" to recipe.id,
-            "title" to recipe.title,
-            "description" to recipe.description,
-            "authorId" to recipe.authorId,
-            "authorName" to recipe.authorName,
-            "ingredients" to recipe.ingredients.map {
-                mapOf(
-                    "name" to it.name,
-                    "quantity" to it.quantity,
-                    "unit" to it.unit,
-                    "moreInformation" to it.moreInformation
-                )
-            },
-            "steps" to recipe.steps,
-            "preparationTime" to recipe.preparationTime,
-            "cookingTime" to recipe.cookingTime,
-            "restingTime" to recipe.restingTime,
-            "difficulty" to recipe.difficulty.name,
-            "price" to recipe.price.name,
-            "typeOfRecipe" to recipe.typeOfRecipe.name,
-            "cookingType" to recipe.cookingType.name,
-            "publicationDate" to FieldValue.serverTimestamp()
-        )
-        firestore.collection(RECIPE_COLLECTION).add(recipeMap).await()
+
+
+        val id = firestore.collection(RECIPE_COLLECTION).add(recipe).await().id
         //firestore.collection(RECIPE_COLLECTION).add(recipe).await()
 
         val userRef = firestore.collection(USER_COLLECTION).document(self.id!!)
-        userRef.update(RECIPE_FIELD, FieldValue.arrayUnion(recipe.id)).await()
+        userRef.update(RECIPE_FIELD, FieldValue.arrayUnion(id)).await()
     }
 
     suspend fun deleteRecipe(recipe: Recipe) {

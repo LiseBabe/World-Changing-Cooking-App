@@ -39,6 +39,10 @@ class ProfileViewModel(
     var recipes by mutableStateOf<List<Recipe>?>(emptyList())
     var isRecipesLoading by mutableStateOf(false)
 
+    init {
+        loadUserRecipes()
+    }
+
     fun loadUserRecipes() {
         viewModelScope.launch {
             isRecipesLoading = true

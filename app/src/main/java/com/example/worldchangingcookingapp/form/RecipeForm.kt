@@ -49,6 +49,7 @@ import com.example.worldchangingcookingapp.models.PricePicker
 import com.example.worldchangingcookingapp.models.Recipe
 import com.example.worldchangingcookingapp.models.RecipeTypePicker
 import com.example.worldchangingcookingapp.models.TypeOfRecipe
+import com.google.firebase.Timestamp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Date
@@ -296,6 +297,7 @@ class RecipeForm() : Form() {
         recipe.authorId = ""
         recipe.authorName = "Jeremy Beremy"
         recipe.authorProfilePath = ""
+        recipe.publicationDate = Timestamp.now()
         recipe.description = description.state.value ?: ""
         recipe.difficulty = difficulty.state.value?.type ?: Difficulty.MEDIUM
         recipe.price = price.state.value?.type ?: Price.MODERATE

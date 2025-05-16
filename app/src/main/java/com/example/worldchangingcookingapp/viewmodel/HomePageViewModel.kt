@@ -16,8 +16,20 @@ import com.example.worldchangingcookingapp.models.User
 
 
 class HomePageViewModel(
+    userState: UserState,
     private val api: ApiService
 ) : ViewModel() {
+
+    val user = when (userState) {
+        is UserState.SignedIn -> {
+            userState.user
+        }
+        else -> null
+    }
+
+    init {
+        loadFeed(user!!)
+    }
 
     // recipe list
     //private val _recipes = MutableStateFlow<List<Recipe>>(FakeRecipeDatabase.recipes)
@@ -29,6 +41,7 @@ class HomePageViewModel(
     //debug
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+
 
 
     fun loadFeed(user: User) {
@@ -47,10 +60,10 @@ class HomePageViewModel(
 
 
     companion object {
-        val Factory = { api: ApiService ->
+        val Factory = { user: UserState, api: ApiService ->
             viewModelFactory {
                 initializer {
-                    HomePageViewModel(api)
+                    HomePageViewModel(user, api)
                 }
             }
         }

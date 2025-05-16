@@ -18,20 +18,7 @@ import com.example.worldchangingcookingapp.viewmodel.HomePageViewModel
 import com.example.worldchangingcookingapp.viewmodel.UserState
 
 @Composable
-fun HomePageScreen(appViewModel: AppViewModel, homePageViewModel: HomePageViewModel, onSelect: (Recipe) -> Unit) {
-    val user = when(appViewModel.user) {
-        is UserState.SignedIn ->  { (appViewModel.user as UserState.SignedIn).user }
-        else -> null
-    }
-
-    LaunchedEffect(user) {
-        if (user != null) {
-            homePageViewModel.loadFeed(user)
-        }
-    }
-
-    val recipes = homePageViewModel.recipes.collectAsState().value
-
+fun HomePageScreen(homePageViewModel: HomePageViewModel, onSelect: (Recipe) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -41,13 +28,13 @@ fun HomePageScreen(appViewModel: AppViewModel, homePageViewModel: HomePageViewMo
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Logged in as: ${user?.email ?: "Unknown"}")
-        Text("User ID: ${user?.id ?: "Unknown"}")
+        Text("Logged in as: ${homePageViewModel.user?.email ?: "Unknown"}")
+        Text("User ID: ${homePageViewModel.user?.id ?: "Unknown"}")
 
         Spacer(modifier = Modifier.height(16.dp))
 
         RecipeListScreen(
-            recipes = recipes,
+            recipes = homePageViewModel.recipes.collectAsState().value,
             onRecipeClick = onSelect
         )
     }

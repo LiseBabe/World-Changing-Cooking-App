@@ -51,7 +51,7 @@ class RecipeFormViewModel (
 
     fun buildRecipe() : Recipe {
         if (recipe == null) {
-            recipe = blankRecipe()
+            recipe = Recipe()
         }
         form.collectValues(recipe!!)
         recipe?.authorId = user!!.id!!
@@ -103,27 +103,4 @@ class RecipeFormViewModel (
             }
         }
     }
-}
-
-fun blankRecipe(): Recipe {
-    return Recipe(
-        id = "",
-        title = "",
-        authorId = "",
-        authorName = "",
-        authorProfilePath = "",
-        description = "",
-        difficulty = Difficulty.EASY,
-        price = Price.CHEAP,
-        typeOfRecipe = TypeOfRecipe.MAIN_COURSE,
-        numberOfPeople = 0,
-        preparationTime = 0L,
-        cookingTime = 0L,
-        restingTime = 0L,
-        cookingType = CookingType.OTHER,
-        ingredients = listOf(),
-        steps = listOf(),
-        moreInformation = "",
-        cacheCategory = CacheCategory.DRAFT
-    )
 }

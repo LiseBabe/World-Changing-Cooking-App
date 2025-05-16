@@ -82,7 +82,6 @@ import com.example.worldchangingcookingapp.viewmodel.ProfileViewModel
 import com.example.worldchangingcookingapp.viewmodel.RecipeFormViewModel
 import kotlinx.coroutines.launch
 import com.example.worldchangingcookingapp.viewmodel.UserState
-import com.example.worldchangingcookingapp.viewmodel.UserState
 
 
 @Composable
@@ -280,11 +279,13 @@ fun TopBar(
 fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppViewModel) {
     composable<Home> {
         val homePageViewModel: HomePageViewModel = viewModel(
-            factory = HomePageViewModel.Factory(appViewModel.api)
+            factory = HomePageViewModel.Factory(
+                appViewModel.user,
+                appViewModel.api
+            )
         )
 
         HomePageScreen(
-            appViewModel = appViewModel,
             homePageViewModel = homePageViewModel,
         ) {
                 appViewModel.selectedRecipe = it
@@ -323,7 +324,6 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
                 appViewModel.database
             )
         )
-        // profileViewModel.loadUserRecipes()
         ProfileScreen(
             profileViewModel,
             navController,

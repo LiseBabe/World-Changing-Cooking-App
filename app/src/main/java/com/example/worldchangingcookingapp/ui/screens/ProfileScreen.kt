@@ -96,10 +96,10 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController, onE
 
 
         if (viewModel.isRecipesLoading) {
-            Text("Chargement des recettes...")
+            Text("Loading user's recipes...")
         } else {
             RecipeListScreen(
-                recipes = FakeRecipeDatabase.recipes,
+                recipes = viewModel.recipes!!,
                 onRecipeClick = {
                     print("do something with the recipe")
                     //navController.navigate("recipeDetail")
