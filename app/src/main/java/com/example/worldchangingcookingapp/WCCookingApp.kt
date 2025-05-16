@@ -60,8 +60,6 @@ import com.example.worldchangingcookingapp.ui.screens.EditProfileScreen
 import com.example.worldchangingcookingapp.ui.screens.LoginScreen
 import com.example.worldchangingcookingapp.ui.screens.ProfileScreen
 import com.example.worldchangingcookingapp.ui.screens.HomePageScreen
-import com.example.worldchangingcookingapp.ui.screens.RecipeDetailScreen
-import com.example.worldchangingcookingapp.ui.screens.ViewRecipeScreen
 import com.example.worldchangingcookingapp.ui.screens.ViewRecipeScreen
 import com.example.worldchangingcookingapp.ui.theme.WorldChangingCookingAppTheme
 import com.example.worldchangingcookingapp.viewmodel.AppViewModel

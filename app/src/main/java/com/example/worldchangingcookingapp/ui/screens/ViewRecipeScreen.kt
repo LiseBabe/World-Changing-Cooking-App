@@ -144,9 +144,9 @@ fun PreviewRecipeScreen() {
             price = Price.MODERATE,
             typeOfRecipe = TypeOfRecipe.DESSERT,
             numberOfPeople = 4,
-            preparationTime = 20.minutes,
-            cookingTime = 45.minutes,
-            restingTime = 15.minutes,
+            preparationTime = 20L,
+            cookingTime = 45L,
+            restingTime = 15L,
             cookingType = CookingType.OVEN,
             ingredients = listOf(
                 Ingredients(40.0, "mg", "butter", "")

@@ -3,7 +3,7 @@ package com.example.worldchangingcookingapp.models
 import ch.benlu.composeform.fields.PickerValue
 
 enum class TypeOfRecipe {
-    STARTER, MAIN_COURSE, DESSERT, SIDE_DISH, APPETIZER, DRINK, CONFECTIONERY, SAUCE
+    STARTER, MAIN_COURSE, DESSERT, SIDE_DISH, APPETIZER, DRINK, CONFECTIONERY, SAUCE, OTHER
 }
 
 data class RecipeTypePicker(

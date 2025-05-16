@@ -38,10 +38,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Ingredients(
-    var quantity: Double,
-    var unit: String,
-    var name: String,
-    var moreInformation: String,
+    var quantity: Double = 0.0,
+    var unit: String = "",
+    var name: String = "",
+    var moreInformation: String = "",
 )
 
 class IngredientItem(override var state: MutableState<Ingredients>) : ListItem<Ingredients> {

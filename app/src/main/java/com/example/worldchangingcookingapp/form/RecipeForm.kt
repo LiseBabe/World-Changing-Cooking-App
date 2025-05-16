@@ -54,6 +54,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.UUID
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
@@ -114,9 +115,9 @@ class RecipeForm() : Form() {
         price.state.value = PricePicker(recipe.price, recipe.price.name)
         typeOfRecipe.state.value = RecipeTypePicker(recipe.typeOfRecipe, recipe.typeOfRecipe.name)
         numberOfPeople.state.value = NumberPicker(recipe.numberOfPeople)
-        preparationTime.state.value = recipe.preparationTime
-        cookingTime.state.value = recipe.cookingTime
-        restingTime.state.value = recipe.restingTime
+        preparationTime.state.value = recipe.preparationTime.milliseconds
+        cookingTime.state.value = recipe.cookingTime.milliseconds
+        restingTime.state.value = recipe.restingTime.milliseconds
         cookingType.state.value = CookingTypePicker(recipe.cookingType, recipe.cookingType.name)
         ingredients.state.addAll(recipe.ingredients.map { i -> IngredientItem(mutableStateOf(i)) })
         steps.state.addAll(recipe.steps.map { i -> StepItem(mutableStateOf(i)) })
@@ -300,9 +301,9 @@ class RecipeForm() : Form() {
         recipe.price = price.state.value?.type ?: Price.MODERATE
         recipe.typeOfRecipe = typeOfRecipe.state.value?.type ?: TypeOfRecipe.MAIN_COURSE
         recipe.numberOfPeople = numberOfPeople.state.value?.value ?: 1
-        recipe.preparationTime = preparationTime.state.value ?: 0.minutes
-        recipe.cookingTime = cookingTime.state.value ?: 0.minutes
-        recipe.restingTime = restingTime.state.value ?: 0.minutes
+        recipe.preparationTime = preparationTime.state.value?.inWholeMilliseconds ?: 0
+        recipe.cookingTime = cookingTime.state.value?.inWholeMilliseconds ?: 0
+        recipe.restingTime = restingTime.state.value?.inWholeMilliseconds ?: 0
         recipe.cookingType = cookingType.state.value?.type ?: CookingType.OTHER
         recipe.ingredients = ingredients.state.map { it.state.value }
         recipe.steps = steps.state.map { it.state.value }
