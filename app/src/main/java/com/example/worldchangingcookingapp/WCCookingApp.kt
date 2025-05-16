@@ -338,7 +338,7 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
                 appViewModel.viewModelScope.launch(){
                     appViewModel.api.updateUser(user)
                 }
-                // appViewModel.user. = user TODO: change back the user in appViewModel
+                appViewModel.user = UserState.SignedIn(user)
                 navController.navigate(Profile)
             }
 
