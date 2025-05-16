@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -80,6 +81,7 @@ import com.example.worldchangingcookingapp.viewmodel.LoginViewModel
 import com.example.worldchangingcookingapp.viewmodel.ProfileViewModel
 import com.example.worldchangingcookingapp.viewmodel.RecipeFormViewModel
 import kotlinx.coroutines.launch
+import com.example.worldchangingcookingapp.viewmodel.UserState
 import com.example.worldchangingcookingapp.viewmodel.UserState
 
 
@@ -345,11 +347,13 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
         )
     }
     composable<ViewRecipe> {
-        val recipe = appViewModel.selectedRecipe
-        if (recipe != null) {
-            ViewRecipeScreen(recipe = recipe)
-        } else {
-            Text("Error : no recipe selected", Modifier.padding(16.dp))
+        when {
+            appViewModel.selectedRecipe == null -> {
+                Text("No Recipe Found")
+            }
+            else -> {
+                ViewRecipeScreen(appViewModel.selectedRecipe!!)
+            }
         }
     }
     composable<Login> {

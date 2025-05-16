@@ -10,6 +10,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
 
+
 class ApiService {
     private val firestore = Firebase.firestore
 
@@ -68,7 +69,32 @@ class ApiService {
     }
 
     suspend fun addRecipe(self: User, recipe: Recipe) {
-        firestore.collection(RECIPE_COLLECTION).add(recipe).await()
+        val recipeMap = mapOf(
+            "id" to recipe.id,
+            "title" to recipe.title,
+            "description" to recipe.description,
+            "authorId" to recipe.authorId,
+            "authorName" to recipe.authorName,
+            "ingredients" to recipe.ingredients.map {
+                mapOf(
+                    "name" to it.name,
+                    "quantity" to it.quantity,
+                    "unit" to it.unit,
+                    "moreInformation" to it.moreInformation
+                )
+            },
+            "steps" to recipe.steps,
+            "preparationTime" to recipe.preparationTime,
+            "cookingTime" to recipe.cookingTime,
+            "restingTime" to recipe.restingTime,
+            "difficulty" to recipe.difficulty.name,
+            "price" to recipe.price.name,
+            "typeOfRecipe" to recipe.typeOfRecipe.name,
+            "cookingType" to recipe.cookingType.name,
+            "publicationDate" to FieldValue.serverTimestamp()
+        )
+        firestore.collection(RECIPE_COLLECTION).add(recipeMap).await()
+        //firestore.collection(RECIPE_COLLECTION).add(recipe).await()
 
         val userRef = firestore.collection(USER_COLLECTION).document(self.id!!)
         userRef.update(RECIPE_FIELD, FieldValue.arrayUnion(recipe.id)).await()

@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.worldchangingcookingapp.models.Price
 import com.example.worldchangingcookingapp.models.Recipe
+import kotlin.time.Duration.Companion.milliseconds
 
 
 @Composable
@@ -66,7 +67,8 @@ fun RecipeListScreen(recipes: List<Recipe>, onRecipeClick: (Recipe) -> Unit) {
 
                     // Other information
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("🕒 ${recipe.preparationTime.inWholeMinutes} min")
+                        val minutes = recipe.preparationTime.milliseconds.inWholeMinutes
+                        Text("🕒 $minutes min")
                         Icon(Icons.Rounded.Warning, contentDescription = "Warning")
                         Text(recipe.difficulty.name.lowercase().replaceFirstChar { it.uppercase() })
                         Icon(Icons.Rounded.ShoppingCart, contentDescription = "Price")

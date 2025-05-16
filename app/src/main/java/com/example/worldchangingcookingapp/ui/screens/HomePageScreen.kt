@@ -3,6 +3,7 @@ package com.example.worldchangingcookingapp.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -22,6 +23,13 @@ fun HomePageScreen(appViewModel: AppViewModel, homePageViewModel: HomePageViewMo
         is UserState.SignedIn ->  { (appViewModel.user as UserState.SignedIn).user }
         else -> null
     }
+
+    LaunchedEffect(user) {
+        if (user != null) {
+            homePageViewModel.loadFeed(user)
+        }
+    }
+
     val recipes = homePageViewModel.recipes.collectAsState().value
 
     Column(
@@ -42,7 +50,5 @@ fun HomePageScreen(appViewModel: AppViewModel, homePageViewModel: HomePageViewMo
             recipes = recipes,
             onRecipeClick = onSelect
         )
-
-
     }
 }
