@@ -101,7 +101,8 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController, onE
             RecipeListScreen(
                 recipes = FakeRecipeDatabase.recipes,
                 onRecipeClick = {
-                    navController.navigate("recipeDetail")
+                    print("do something with the recipe")
+                    //navController.navigate("recipeDetail")
                 }
             )
         }
