@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.worldchangingcookingapp.contants.ScreenType
 import com.example.worldchangingcookingapp.contants.ViewRecipe
 import com.example.worldchangingcookingapp.models.Recipe
 import com.example.worldchangingcookingapp.viewmodel.AppViewModel
@@ -18,23 +19,19 @@ import com.example.worldchangingcookingapp.viewmodel.HomePageViewModel
 import com.example.worldchangingcookingapp.viewmodel.UserState
 
 @Composable
-fun HomePageScreen(homePageViewModel: HomePageViewModel, onSelect: (Recipe) -> Unit) {
+fun HomePageScreen(homePageViewModel: HomePageViewModel, screenType: ScreenType, onSelect: (Recipe) -> Unit) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Logged in as: ${homePageViewModel.user?.email ?: "Unknown"}")
-        Text("User ID: ${homePageViewModel.user?.id ?: "Unknown"}")
+//        Text("Logged in as: ${homePageViewModel.user?.email ?: "Unknown"}")
+//        Text("User ID: ${homePageViewModel.user?.id ?: "Unknown"}")
 
-        Spacer(modifier = Modifier.height(16.dp))
 
         RecipeListScreen(
             recipes = homePageViewModel.recipes.collectAsState().value,
+            screenType = screenType,
             onRecipeClick = onSelect
         )
     }

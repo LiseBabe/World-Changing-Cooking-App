@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -61,6 +62,7 @@ import com.example.worldchangingcookingapp.contants.EditProfile
 import com.example.worldchangingcookingapp.contants.Home
 import com.example.worldchangingcookingapp.contants.Login
 import com.example.worldchangingcookingapp.contants.Profile
+import com.example.worldchangingcookingapp.contants.ScreenType
 import com.example.worldchangingcookingapp.contants.ViewRecipe
 import com.example.worldchangingcookingapp.contants.topLevelRoutes
 import com.example.worldchangingcookingapp.models.User
@@ -96,6 +98,15 @@ fun WCCookingApp(
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentScreen = backStackEntry?.destination?.route
 
+
+    val screenType: ScreenType = when (windowSize.widthSizeClass) {
+        WindowWidthSizeClass.Compact -> {
+            ScreenType.TALL
+        }
+        else -> {
+            ScreenType.WIDE
+        }
+    }
     val appBarType: AppBarType = when (windowSize.heightSizeClass) {
         WindowHeightSizeClass.Compact -> {
             AppBarType.RAIL
@@ -135,7 +146,7 @@ fun WCCookingApp(
                                     startDestination = Home,
                                     modifier = Modifier.padding(innerPadding)
                                 ) {
-                                    appGraph(navController, appViewModel)
+                                    appGraph(navController, appViewModel, screenType)
                                 }
                             }
                         is UserState.Loading -> {
@@ -276,7 +287,7 @@ fun TopBar(
 }
 
 
-fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppViewModel) {
+fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppViewModel, screenType: ScreenType) {
     composable<Home> {
         val homePageViewModel: HomePageViewModel = viewModel(
             factory = HomePageViewModel.Factory(
@@ -287,6 +298,7 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
 
         HomePageScreen(
             homePageViewModel = homePageViewModel,
+            screenType = screenType
         ) {
                 appViewModel.selectedRecipe = it
                 navController.navigate(ViewRecipe)
@@ -296,7 +308,7 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
         val viewModel: DraftsViewModel = viewModel(
             factory = DraftsViewModel.Factory(appViewModel.database)
         )
-        DraftsScreen(viewModel) { recipe ->
+        DraftsScreen(viewModel, screenType) { recipe ->
             appViewModel.selectedRecipe = recipe
             navController.navigate(CreateRecipe) {
                 launchSingleTop = true
@@ -327,6 +339,7 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
         ProfileScreen(
             profileViewModel,
             navController,
+            screenType,
             onEditClick = {
                 navController.navigate(EditProfile)
             }

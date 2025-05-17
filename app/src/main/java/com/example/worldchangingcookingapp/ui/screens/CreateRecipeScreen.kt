@@ -239,9 +239,6 @@ fun CreateRecipeScreen(formModel : RecipeFormViewModel, onComplete: () -> Unit) 
             OutlinedButton(
                 onClick = {
                     recipe = formModel.buildRecipe()
-                    if (recipe?.id == "") {
-                        recipe?.id = formModel.api.randomRecipeId()
-                    }
                     formModel.publishRecipe()
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),

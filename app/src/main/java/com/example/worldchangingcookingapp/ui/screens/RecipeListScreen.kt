@@ -2,8 +2,9 @@ package com.example.worldchangingcookingapp.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ShoppingCart
@@ -13,23 +14,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.worldchangingcookingapp.contants.ScreenType
 import com.example.worldchangingcookingapp.models.Price
 import com.example.worldchangingcookingapp.models.Recipe
 import kotlin.time.Duration.Companion.milliseconds
 
 
 @Composable
-fun RecipeListScreen(recipes: List<Recipe>, onRecipeClick: (Recipe) -> Unit) {
-    LazyColumn(
+fun RecipeListScreen(recipes: List<Recipe>, screenType: ScreenType, onRecipeClick: (Recipe) -> Unit) {
+    LazyVerticalStaggeredGrid(
+        columns = if (screenType == ScreenType.TALL) StaggeredGridCells.Fixed(1) else StaggeredGridCells.Fixed(2),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalItemSpacing = 8.dp,
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 4.dp, vertical = 8.dp)
     ) {
         items(recipes) { recipe ->
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp)
                     .heightIn(max = 220.dp)
                     .clickable { onRecipeClick(recipe) },
                 shape = RoundedCornerShape(16.dp),
@@ -67,17 +71,33 @@ fun RecipeListScreen(recipes: List<Recipe>, onRecipeClick: (Recipe) -> Unit) {
 
                     // Other information
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        val minutes = recipe.preparationTime.milliseconds.inWholeMinutes
-                        Text("🕒 $minutes min")
+                        val totalMillis = recipe.preparationTime
+                        if (totalMillis < 60000){
+                            val seconds = totalMillis / 1000
+                            //val formattedTime = "${seconds}s"
+                            Text("🕒 ${seconds}s")
+                        } else {
+                            val totalMinutes = totalMillis / 1000 / 60
+                            val hours = totalMinutes / 60
+                            val minutes = totalMinutes % 60
+
+                            val formattedTime = buildString {
+                                if (hours > 0) append("${hours}h ")
+                                append("${minutes}min")
+                            }
+                            Text("🕒 $formattedTime")
+                        }
                         Icon(Icons.Rounded.Warning, contentDescription = "Warning")
-                        Text(recipe.difficulty.name.lowercase().replaceFirstChar { it.uppercase() })
+                        Text(recipe.difficulty.name.lowercase().replace('_', ' ').replaceFirstChar { it.uppercase() })
                         Icon(Icons.Rounded.ShoppingCart, contentDescription = "Price")
                         Text(
                             when (recipe.price) {
-                                Price.CHEAP -> "CHEAP"
-                                Price.MODERATE -> "MODERATE"
-                                Price.EXPENSIVE -> "EXPENSIVE"
-                            }
+                                Price.CHEAP -> "Cheap"
+                                Price.MODERATE -> "Moderate"
+                                Price.EXPENSIVE -> "Expensive"
+                            },
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }

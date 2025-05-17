@@ -69,7 +69,7 @@ class ApiService {
             .toObject(Recipe::class.java)
     }
 
-    suspend fun addRecipe(self: User, recipe: Recipe) {
+    suspend fun addRecipe(self: User, recipe: Recipe): String {
 
 
         val id = firestore.collection(RECIPE_COLLECTION).add(recipe).await().id
@@ -77,6 +77,7 @@ class ApiService {
 
         val userRef = firestore.collection(USER_COLLECTION).document(self.id!!)
         userRef.update(RECIPE_FIELD, FieldValue.arrayUnion(id)).await()
+        return id
     }
 
     suspend fun deleteRecipe(recipe: Recipe) {
@@ -134,10 +135,6 @@ class ApiService {
             null
         }
         return recipes to newLastVisible
-    }
-
-    fun randomUserId(): String {
-        return firestore.collection(USER_COLLECTION).document().id
     }
     fun randomRecipeId(): String {
         return firestore.collection(RECIPE_COLLECTION).document().id

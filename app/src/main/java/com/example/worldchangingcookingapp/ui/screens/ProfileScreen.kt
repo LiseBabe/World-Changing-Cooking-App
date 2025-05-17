@@ -40,19 +40,23 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.worldchangingcookingapp.R
+import com.example.worldchangingcookingapp.contants.ScreenType
 import com.example.worldchangingcookingapp.data.FakeRecipeDatabase
 import com.example.worldchangingcookingapp.models.User
 import com.example.worldchangingcookingapp.database.Users
 import com.example.worldchangingcookingapp.models.Recipe
 import com.example.worldchangingcookingapp.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController, onEditClick: () -> Unit) {
+fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController, screenType: ScreenType, onEditClick: () -> Unit) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
@@ -94,12 +98,42 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController, onE
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        val context = LocalContext.current
+        val instagramName = viewModel.user?.instagramName
+        Button(
+            onClick = {
+                if (!instagramName.isNullOrBlank()) {
+                    val url = "https://www.instagram.com/$instagramName"
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    context.startActivity(intent)
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Instagram username not set. Please edit your profile first.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_instagram),
+                contentDescription = "Instagram icon",
+                modifier = Modifier
+                    .size(30.dp)
+                    .padding(end = 8.dp)
+            )
+            Text("See Instagram profile")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         if (viewModel.isRecipesLoading) {
             Text("Loading user's recipes...")
         } else {
             RecipeListScreen(
                 recipes = viewModel.recipes!!,
+                screenType,
                 onRecipeClick = {
                     print("do something with the recipe")
                     //navController.navigate("recipeDetail")
