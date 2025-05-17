@@ -61,6 +61,8 @@ dependencies {
     implementation(libs.material3.window.size.class1)
     implementation(libs.androidx.navigation.dynamic.features.fragment)
 
+    implementation(libs.androidx.work.runtime.ktx)
+
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.auth)

@@ -17,7 +17,7 @@ class DefaultAppContainer(private val context : Context) : AppContainer {
     }
 
     override val apiService: ApiService by lazy {
-        ApiService()
+        ApiService(context)
     }
 
     override val databaseService: DatabaseService by lazy {

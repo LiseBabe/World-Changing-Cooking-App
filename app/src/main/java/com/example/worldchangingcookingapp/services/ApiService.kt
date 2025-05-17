@@ -1,5 +1,11 @@
 package com.example.worldchangingcookingapp.services
 
+import android.content.Context
+import androidx.work.Constraints
+import androidx.work.Data
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.worldchangingcookingapp.models.Recipe
 import com.example.worldchangingcookingapp.models.User
 import com.google.firebase.Firebase
@@ -10,9 +16,10 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
+import kotlinx.serialization.json.Json
 
 
-class ApiService {
+class ApiService(private val context: Context) {
     private val firestore = Firebase.firestore
 
     suspend fun getUser(id: String): User? {
@@ -70,14 +77,36 @@ class ApiService {
     }
 
     suspend fun addRecipe(self: User, recipe: Recipe): String {
+        return addRecipe(self.id!!, recipe)
+    }
 
-
+    suspend fun addRecipe(userId: String, recipe: Recipe): String {
         val id = firestore.collection(RECIPE_COLLECTION).add(recipe).await().id
         //firestore.collection(RECIPE_COLLECTION).add(recipe).await()
 
-        val userRef = firestore.collection(USER_COLLECTION).document(self.id!!)
+        val userRef = firestore.collection(USER_COLLECTION).document(userId)
         userRef.update(RECIPE_FIELD, FieldValue.arrayUnion(id)).await()
         return id
+    }
+
+    fun launchRecipeAddWorker(user: User, recipe: Recipe) {
+        val recipeString = Json.encodeToString(recipe)
+
+        val inputData = Data.Builder()
+            .putString(AddRecipeWorker.USER_ID, user.id!!)
+            .putString(AddRecipeWorker.RECIPE_JSON, recipeString)
+            .build()
+
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val addRecipeWorker = OneTimeWorkRequestBuilder<AddRecipeWorker>()
+            .setInputData(inputData)
+            .setConstraints(constraints)
+            .build()
+
+        WorkManager.getInstance(context).enqueue(addRecipeWorker)
     }
 
     suspend fun deleteRecipe(recipe: Recipe) {
