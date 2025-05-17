@@ -82,6 +82,8 @@ fun EditProfileScreen(userState: UserState, onSave: (User) -> Unit) {
     var profilePicturePath by remember { mutableStateOf(user?.profilePicturePath?: "") }
     var showImageSelector by remember { mutableStateOf(false) }
     var showUsernameSelector by remember { mutableStateOf(false) }
+    var instagramName by remember { mutableStateOf(user?.instagramName ?: "") }
+    var showInstagramNameSelector by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -127,12 +129,24 @@ fun EditProfileScreen(userState: UserState, onSave: (User) -> Unit) {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+/////
+        Text(text = "Current Instagram Pseudo :")
+        Text(text =  instagramName)
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
+            onClick = { showInstagramNameSelector = true },
+            modifier = Modifier.fillMaxWidth()
+        ){
+            Text("Change Instagram Pseudo")
+        }
+////
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
             onClick = {
-                user = user?.copy(displayName = username, profilePicturePath = profilePicturePath)
+                user = user?.copy(displayName = username, profilePicturePath = profilePicturePath, instagramName = instagramName)
                 onSave(user!!)
             },
             modifier = Modifier.fillMaxWidth()
@@ -159,6 +173,17 @@ fun EditProfileScreen(userState: UserState, onSave: (User) -> Unit) {
                 showImageSelector = false
             },
             onDismiss = { showImageSelector = false }
+        )
+    }
+
+    if (showInstagramNameSelector) {
+        StringSelectorPopupInstagram(
+            currentValue = instagramName,
+            onSave = { newInstagramName : String ->
+                showInstagramNameSelector = false
+                instagramName = newInstagramName
+            },
+            onDismiss = { showInstagramNameSelector = false }
         )
     }
 }
@@ -257,6 +282,59 @@ fun StringSelectorPopup(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text("Edit Username", style = MaterialTheme.typography.titleMedium)
+
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    label = { Text(currentValue) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text("Cancel")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = { onSave(text) }) {
+                        Text("Save")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun StringSelectorPopupInstagram(
+    currentValue: String = "",
+    onSave: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var text by remember { mutableStateOf(currentValue) }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 8.dp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .wrapContentHeight(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text("Edit Instagram Pseudo", style = MaterialTheme.typography.titleMedium)
 
                 OutlinedTextField(
                     value = text,

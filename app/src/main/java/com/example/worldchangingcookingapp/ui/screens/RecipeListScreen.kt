@@ -23,7 +23,7 @@ fun RecipeListScreen(recipes: List<Recipe>, onRecipeClick: (Recipe) -> Unit) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 4.dp, vertical = 8.dp)
     ) {
         items(recipes) { recipe ->
             Card(
@@ -67,17 +67,33 @@ fun RecipeListScreen(recipes: List<Recipe>, onRecipeClick: (Recipe) -> Unit) {
 
                     // Other information
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        val minutes = recipe.preparationTime.milliseconds.inWholeMinutes
-                        Text("🕒 $minutes min")
+                        val totalMillis = recipe.preparationTime
+                        if (totalMillis < 60000){
+                            val seconds = totalMillis / 1000
+                            //val formattedTime = "${seconds}s"
+                            Text("🕒 ${seconds}s")
+                        } else {
+                            val totalMinutes = totalMillis / 1000 / 60
+                            val hours = totalMinutes / 60
+                            val minutes = totalMinutes % 60
+
+                            val formattedTime = buildString {
+                                if (hours > 0) append("${hours}h ")
+                                append("${minutes}min")
+                            }
+                            Text("🕒 $formattedTime")
+                        }
                         Icon(Icons.Rounded.Warning, contentDescription = "Warning")
-                        Text(recipe.difficulty.name.lowercase().replaceFirstChar { it.uppercase() })
+                        Text(recipe.difficulty.name.lowercase().replace('_', ' ').replaceFirstChar { it.uppercase() })
                         Icon(Icons.Rounded.ShoppingCart, contentDescription = "Price")
                         Text(
                             when (recipe.price) {
-                                Price.CHEAP -> "CHEAP"
-                                Price.MODERATE -> "MODERATE"
-                                Price.EXPENSIVE -> "EXPENSIVE"
-                            }
+                                Price.CHEAP -> "Cheap"
+                                Price.MODERATE -> "Moderate"
+                                Price.EXPENSIVE -> "Expensive"
+                            },
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
