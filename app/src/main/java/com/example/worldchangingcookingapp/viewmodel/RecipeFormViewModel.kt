@@ -74,11 +74,8 @@ class RecipeFormViewModel (
                 if (recipe?.id != null && recipe?.id != "") {
                     deleteFromCache(recipe?.id!!)
                 }
-                val id = api.addRecipe(user!!, recipe!!)
+                api.launchRecipeAddWorker(user!!, recipe!!)
                 _postStatus.emit(PostResult.Success)
-                recipe?.cacheCategory = CacheCategory.REGULAR
-                recipe?.id = id
-                saveRecipe(recipe!!)
             } catch (e : Exception) {
                 _postStatus.emit(PostResult.Error(e.message ?: "Post Failed"))
             }

@@ -7,35 +7,41 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.ServerTimestamp
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.descriptors.element
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.encoding.decodeStructure
+import kotlinx.serialization.encoding.encodeStructure
+import java.util.Date
 import kotlin.time.Duration
 
-//@Entity(tableName = "recipes")
-//data class Recipe(
-//    @DocumentId
-//    @PrimaryKey
-//    var id: String = "",
-//    var title: String,
-//    var authorId: String,
-//    var authorName: String,
-//    var authorProfilePath: String,
-//    @ServerTimestamp
-//    var publicationDate: Timestamp? = null,
-//    var description: String,
-//    var difficulty: Difficulty, //enum Difficulty
-//    var price: Price,
-//    var typeOfRecipe: TypeOfRecipe,
-//    var numberOfPeople: Int,
-//    var preparationTime: Duration,
-//    var cookingTime: Duration,
-//    var restingTime: Duration,
-//    var cookingType: CookingType,
-//    var ingredients: List<Ingredients>,
-//    var steps: List<String>,
-//    var moreInformation: String,
-//    @get:Exclude
-//    var cacheCategory : CacheCategory = CacheCategory.DRAFT
-//)
+@Serializable
+@SerialName("Timestamp")
+private data class TimestampSurrogate(val seconds: Long, val nanoseconds: Int)
 
+object TimestampSerializer : KSerializer<Timestamp> {
+    override val descriptor: SerialDescriptor = SerialDescriptor(
+        "app.Timestamp",
+        TimestampSurrogate.serializer().descriptor
+        )
+
+    override fun serialize(encoder: Encoder, value: Timestamp) {
+        val surrogate = TimestampSurrogate(value.seconds, value.nanoseconds)
+        encoder.encodeSerializableValue(TimestampSurrogate.serializer(), surrogate)
+    }
+
+    override fun deserialize(decoder: Decoder): Timestamp {
+        val surrogate = decoder.decodeSerializableValue(TimestampSurrogate.serializer())
+        return Timestamp(surrogate.seconds, surrogate.nanoseconds)
+    }
+}
+
+@Serializable
 @Entity(tableName = "recipes")
 data class Recipe(
     @DocumentId
@@ -45,6 +51,7 @@ data class Recipe(
     var authorId: String = "",
     var authorName: String = "",
     var authorProfilePath: String = "",
+    @Serializable(with = TimestampSerializer::class)
     @ServerTimestamp
     var publicationDate: Timestamp? = null,
     var description: String = "",
