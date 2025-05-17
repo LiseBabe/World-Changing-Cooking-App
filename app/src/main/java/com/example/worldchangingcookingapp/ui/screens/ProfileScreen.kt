@@ -40,6 +40,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.worldchangingcookingapp.R
+import com.example.worldchangingcookingapp.contants.ScreenType
 import com.example.worldchangingcookingapp.data.FakeRecipeDatabase
 import com.example.worldchangingcookingapp.models.User
 import com.example.worldchangingcookingapp.database.Users
@@ -48,11 +49,10 @@ import com.example.worldchangingcookingapp.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController, onEditClick: () -> Unit) {
+fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController, screenType: ScreenType, onEditClick: () -> Unit) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
@@ -100,6 +100,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController, onE
         } else {
             RecipeListScreen(
                 recipes = viewModel.recipes!!,
+                screenType,
                 onRecipeClick = {
                     print("do something with the recipe")
                     //navController.navigate("recipeDetail")

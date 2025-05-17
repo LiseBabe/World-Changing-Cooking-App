@@ -7,3 +7,7 @@ enum class CacheCategory {
 enum class AppBarType {
     RAIL, REGULAR
 }
+
+enum class ScreenType {
+    TALL, WIDE
+}
