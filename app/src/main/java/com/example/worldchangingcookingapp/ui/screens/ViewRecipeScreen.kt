@@ -30,6 +30,7 @@ import com.example.worldchangingcookingapp.models.TypeOfRecipe
 import kotlin.time.Duration.Companion.minutes
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun ViewRecipeScreen(recipe : Recipe) {
@@ -57,7 +58,7 @@ fun ViewRecipeScreen(recipe : Recipe) {
                     Row (verticalAlignment = Alignment.CenterVertically){
                         Spacer(Modifier.padding(4.dp))
                         Icon(Icons.Rounded.Warning, contentDescription = "Warning")
-                        Text(recipe.difficulty.name, style = MaterialTheme.typography.bodyLarge)
+                        Text(recipe.difficulty.name.replace('_', ' '), style = MaterialTheme.typography.bodyLarge)
                     }
                     Row (verticalAlignment = Alignment.CenterVertically){
                         Spacer(Modifier.padding(4.dp))
@@ -78,17 +79,51 @@ fun ViewRecipeScreen(recipe : Recipe) {
                     Row (verticalAlignment = Alignment.CenterVertically){
                         Spacer(Modifier.padding(4.dp))
                         Icon(Icons.Rounded.DateRange, contentDescription = "Prep Time")
-                        Text("Prep ${recipe.preparationTime}", style = MaterialTheme.typography.bodyLarge)
+                        val totalSeconds = recipe.preparationTime / 1000
+                        val hours = totalSeconds / 3600
+                        val minutes = (totalSeconds % 3600) / 60
+                        val seconds = totalSeconds % 60
+
+                        val formattedTime = if (hours > 0) {
+                            "${hours}h ${minutes}min"
+                        } else {
+                            "${minutes}min ${seconds}s"
+                        }
+
+                        Text("Prep $formattedTime", style = MaterialTheme.typography.bodyLarge)
                     }
                     Row (verticalAlignment = Alignment.CenterVertically){
                         Spacer(Modifier.padding(4.dp))
                         Icon(Icons.Rounded.DateRange, contentDescription = "Cook Time")
-                        Text("Cook ${recipe.cookingTime}", style = MaterialTheme.typography.bodyLarge)
+                        val totalSeconds = recipe.cookingTime / 1000
+                        val hours = totalSeconds / 3600
+                        val minutes = (totalSeconds % 3600) / 60
+                        val seconds = totalSeconds % 60
+
+                        val formattedTime = if (hours > 0) {
+                            "${hours}h ${minutes}min"
+                        } else {
+                            "${minutes}min ${seconds}s"
+                        }
+
+                        Text("Cook $formattedTime", style = MaterialTheme.typography.bodyLarge)
                     }
                     Row (verticalAlignment = Alignment.CenterVertically){
                         Spacer(Modifier.padding(4.dp))
                         Icon(Icons.Rounded.DateRange, contentDescription = "Rest Time")
-                        Text("Rest ${recipe.restingTime}", style = MaterialTheme.typography.bodyLarge)
+                        val totalSeconds = recipe.restingTime / 1000
+                        val hours = totalSeconds / 3600
+                        val minutes = (totalSeconds % 3600) / 60
+                        val seconds = totalSeconds % 60
+
+                        val formattedTime = if (hours > 0) {
+                            "${hours}h ${minutes}min"
+                        } else {
+                            "${minutes}min ${seconds}s"
+                        }
+
+                        Text("Rest $formattedTime", style = MaterialTheme.typography.bodyLarge)
+
                     }
                     Spacer(Modifier.padding(4.dp))
                 }
@@ -140,11 +175,11 @@ fun PreviewRecipeScreen() {
             authorName = "Jeremy Beremy",
             authorProfilePath = "",
             description = "A delicious banana bread recipe. Beginner friendly. Milk Free.",
-            difficulty = Difficulty.EASY,
-            price = Price.MODERATE,
+            difficulty = Difficulty.REALLY_EASY,
+            price = Price.EXPENSIVE,
             typeOfRecipe = TypeOfRecipe.DESSERT,
             numberOfPeople = 4,
-            preparationTime = 20L,
+            preparationTime = 20008700L,
             cookingTime = 45L,
             restingTime = 15L,
             cookingType = CookingType.OVEN,
