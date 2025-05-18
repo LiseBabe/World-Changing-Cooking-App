@@ -78,7 +78,6 @@ fun EditProfileScreen(userState: UserState, onSave: (User) -> Unit) {
         else -> null
     }
     var username by remember { mutableStateOf(user?.displayName?: "example") }
-    var email by remember { mutableStateOf(user?.email ?: "example@gmail.com") }
     var profilePicturePath by remember { mutableStateOf(user?.profilePicturePath?: "") }
     var showImageSelector by remember { mutableStateOf(false) }
     var showUsernameSelector by remember { mutableStateOf(false) }

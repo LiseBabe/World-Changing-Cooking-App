@@ -391,7 +391,11 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
                 Text("No User Found")
             }
             else -> {
-                ViewUserScreen(appViewModel.selectedUser!!, false,  {} )
+                ViewUserScreen(
+                    appViewModel.selectedUser!!,
+                    appViewModel.isFriend(appViewModel.selectedUser!!.id!!),
+                    {appViewModel.addFriend(it.id!!)}
+                )
             }
         }
     }

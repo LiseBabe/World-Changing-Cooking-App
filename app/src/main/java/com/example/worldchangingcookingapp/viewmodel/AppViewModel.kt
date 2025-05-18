@@ -67,6 +67,27 @@ class AppViewModel (
         }
     }
 
+    fun addFriend(id: String){
+        val userCopy = user
+        when (userCopy) {
+            is UserState.SignedIn -> {
+                viewModelScope.launch {
+                    api.addFriend(userCopy.user,id)
+                }
+            }
+            else -> null
+        }
+    }
+
+    fun isFriend(id: String): Boolean {
+        return when (val userCopy = user) {
+            is UserState.SignedIn -> {
+                userCopy.user.friends.contains(id) ?: false
+            }
+            else -> false
+        }
+    }
+
     companion object {
         val Factory =
             viewModelFactory {

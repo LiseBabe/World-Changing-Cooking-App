@@ -71,5 +71,7 @@ fun ViewUserScreen(
             Text(if (isFriend) "Already Friends" else "Add Friend")
         }
 
+        // TODO : add user recipes list
+
     }
 }
