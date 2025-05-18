@@ -64,7 +64,9 @@ import com.example.worldchangingcookingapp.contants.Login
 import com.example.worldchangingcookingapp.contants.Profile
 import com.example.worldchangingcookingapp.contants.ScreenType
 import com.example.worldchangingcookingapp.contants.ViewRecipe
+import com.example.worldchangingcookingapp.contants.ViewUser
 import com.example.worldchangingcookingapp.contants.topLevelRoutes
+import com.example.worldchangingcookingapp.models.Recipe
 import com.example.worldchangingcookingapp.models.User
 import com.example.worldchangingcookingapp.services.AccountService
 import com.example.worldchangingcookingapp.services.ApiService
@@ -75,6 +77,7 @@ import com.example.worldchangingcookingapp.ui.screens.LoginScreen
 import com.example.worldchangingcookingapp.ui.screens.ProfileScreen
 import com.example.worldchangingcookingapp.ui.screens.HomePageScreen
 import com.example.worldchangingcookingapp.ui.screens.ViewRecipeScreen
+import com.example.worldchangingcookingapp.ui.screens.ViewUserScreen
 import com.example.worldchangingcookingapp.ui.theme.WorldChangingCookingAppTheme
 import com.example.worldchangingcookingapp.viewmodel.AppViewModel
 import com.example.worldchangingcookingapp.viewmodel.DraftsViewModel
@@ -298,11 +301,16 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
 
         HomePageScreen(
             homePageViewModel = homePageViewModel,
-            screenType = screenType
-        ) {
+            screenType = screenType,
+            onSelect = {
                 appViewModel.selectedRecipe = it
                 navController.navigate(ViewRecipe)
-        }
+            },
+            onUser = {
+                appViewModel.setSelectedUser(it)
+                navController.navigate(ViewUser)
+            }
+        )
     }
     composable<Drafts> {
         val viewModel: DraftsViewModel = viewModel(
@@ -342,6 +350,14 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
             screenType,
             onEditClick = {
                 navController.navigate(EditProfile)
+            },
+            onRecipeClick = {
+                appViewModel.selectedRecipe = it
+                navController.navigate(ViewRecipe)
+            },
+            onUser = {
+                appViewModel.setSelectedUser(it)
+                navController.navigate(ViewUser)
             }
         )
     }
@@ -366,6 +382,16 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
             }
             else -> {
                 ViewRecipeScreen(appViewModel.selectedRecipe!!)
+            }
+        }
+    }
+    composable<ViewUser> {
+        when {
+            appViewModel.selectedUser == null -> {
+                Text("No User Found")
+            }
+            else -> {
+                ViewUserScreen(appViewModel.selectedUser!!, false,  {} )
             }
         }
     }

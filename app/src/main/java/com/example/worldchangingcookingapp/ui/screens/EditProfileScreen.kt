@@ -129,7 +129,7 @@ fun EditProfileScreen(userState: UserState, onSave: (User) -> Unit) {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-/////
+
         Text(text = "Current Instagram Pseudo :")
         Text(text =  instagramName)
 
@@ -141,7 +141,7 @@ fun EditProfileScreen(userState: UserState, onSave: (User) -> Unit) {
         ){
             Text("Change Instagram Pseudo")
         }
-////
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
@@ -300,7 +300,7 @@ fun StringSelectorPopup(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = { onSave(text) }) {
-                        Text("Save")
+                        Text("Ok")
                     }
                 }
             }
@@ -353,7 +353,7 @@ fun StringSelectorPopupInstagram(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = { onSave(text) }) {
-                        Text("Save")
+                        Text("Ok")
                     }
                 }
             }

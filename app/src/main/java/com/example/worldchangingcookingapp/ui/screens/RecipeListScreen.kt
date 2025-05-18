@@ -17,11 +17,12 @@ import androidx.compose.ui.unit.dp
 import com.example.worldchangingcookingapp.contants.ScreenType
 import com.example.worldchangingcookingapp.models.Price
 import com.example.worldchangingcookingapp.models.Recipe
+import com.example.worldchangingcookingapp.models.User
 import kotlin.time.Duration.Companion.milliseconds
 
 
 @Composable
-fun RecipeListScreen(recipes: List<Recipe>, screenType: ScreenType, onRecipeClick: (Recipe) -> Unit) {
+fun RecipeListScreen(recipes: List<Recipe>, screenType: ScreenType, onRecipeClick: (Recipe) -> Unit, onUserClick: (String) -> Unit) {
     LazyVerticalStaggeredGrid(
         columns = if (screenType == ScreenType.TALL) StaggeredGridCells.Fixed(1) else StaggeredGridCells.Fixed(2),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -54,7 +55,10 @@ fun RecipeListScreen(recipes: List<Recipe>, screenType: ScreenType, onRecipeClic
                     Text(
                         text = "By ${recipe.authorName}",
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.clickable {
+                            onUserClick(recipe.authorId)
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))

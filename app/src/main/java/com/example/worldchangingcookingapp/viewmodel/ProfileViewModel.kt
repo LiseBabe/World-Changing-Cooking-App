@@ -36,11 +36,17 @@ class ProfileViewModel(
         else -> null
     }
     var api by mutableStateOf(apiService)
+    var showListRecipe by mutableStateOf(true)
+
     var recipes by mutableStateOf<List<Recipe>?>(emptyList())
     var isRecipesLoading by mutableStateOf(false)
 
+    var friends by mutableStateOf<List<User>?>(emptyList())
+    var isFriendsLoading by mutableStateOf(false)
+
     init {
         loadUserRecipes()
+        loadUserFriends()
     }
 
     fun loadUserRecipes() {
@@ -48,6 +54,14 @@ class ProfileViewModel(
             isRecipesLoading = true
             recipes = api.getRecipes(user?.recipes!!)
             isRecipesLoading = false
+        }
+    }
+
+    fun loadUserFriends() {
+        viewModelScope.launch {
+            isFriendsLoading = true
+            friends = api.getFriends(user?.friends!!)
+            isFriendsLoading = false
         }
     }
 

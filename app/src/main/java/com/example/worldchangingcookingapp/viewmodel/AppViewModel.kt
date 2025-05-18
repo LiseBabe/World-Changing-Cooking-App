@@ -34,6 +34,8 @@ class AppViewModel (
 
     var selectedRecipe by mutableStateOf<Recipe?>(null)
 
+    var selectedUser by mutableStateOf<User?>(null)
+
     init {
         signIn()
     }
@@ -55,6 +57,13 @@ class AppViewModel (
             auth.signOut()
             loggedIn = auth.hasUser
             user = UserState.SignedOut
+        }
+    }
+
+    fun setSelectedUser(id: String){
+        viewModelScope.launch {
+            selectedUser =
+                api.getUser(id)
         }
     }
 

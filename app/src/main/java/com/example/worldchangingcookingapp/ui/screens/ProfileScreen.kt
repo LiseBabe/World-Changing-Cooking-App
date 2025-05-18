@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -50,105 +51,160 @@ import kotlinx.coroutines.launch
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+
 
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController, screenType: ScreenType, onEditClick: () -> Unit) {
-    Column(
+fun ProfileScreen(
+    viewModel: ProfileViewModel,
+    navController: NavController,
+    screenType: ScreenType,
+    onEditClick: () -> Unit,
+    onRecipeClick: (Recipe) -> Unit,
+    onUser: (String) -> Unit
+) {
+    val context = LocalContext.current
+
+    LazyColumn(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            AsyncImage(
-                model = viewModel.user?.profilePicturePath,
-                contentDescription = "Profile picture",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(CircleShape)
-            )
+        item {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                AsyncImage(
+                    model = viewModel.user?.profilePicturePath,
+                    contentDescription = "Profile picture",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(CircleShape)
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    viewModel.user?.recipes?.let { recipes ->
+                        ProfileStat(
+                            label = "Recipe(s)",
+                            count = recipes.size,
+                            onClick = { viewModel.showListRecipe = true }
+                        )
+                    }
+                    viewModel.user?.friends?.let { friends ->
+                        ProfileStat(
+                            label = "Friend(s)",
+                            count = friends.size,
+                            onClick = { viewModel.showListRecipe = false }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = viewModel.user?.displayName ?: "No User Found",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Button(
+                    onClick = onEditClick,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Edit Profile")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                val instagramName = viewModel.user?.instagramName
+                Button(
+                    onClick = {
+                        if (!instagramName.isNullOrBlank()) {
+                            val url = "https://www.instagram.com/$instagramName"
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            context.startActivity(intent)
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Instagram username not set. Please edit your profile first.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_instagram),
+                        contentDescription = "Instagram icon",
+                        modifier = Modifier
+                            .size(30.dp)
+                            .padding(end = 8.dp)
+                    )
+                    Text("See Instagram profile")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
 
-        Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            viewModel.user?.recipes?.let { ProfileStat("Recipe(s)", it.size) }
-            viewModel.user?.friends?.let { ProfileStat("Friend(s)", it.size) }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text(text = viewModel.user?.displayName?: "No User Found" , fontWeight = FontWeight.Bold, fontSize = 18.sp)
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Button(
-            onClick = onEditClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Edit Profile")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        val context = LocalContext.current
-        val instagramName = viewModel.user?.instagramName
-        Button(
-            onClick = {
-                if (!instagramName.isNullOrBlank()) {
-                    val url = "https://www.instagram.com/$instagramName"
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                    context.startActivity(intent)
+        item {
+            if (viewModel.showListRecipe) {
+                if (viewModel.isRecipesLoading) {
+                    Text("Loading user's recipes...")
                 } else {
-                    Toast.makeText(
-                        context,
-                        "Instagram username not set. Please edit your profile first.",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 500.dp)
+                    ) {
+                        RecipeListScreen(
+                            recipes = viewModel.recipes ?: emptyList(),
+                            screenType = screenType,
+                            onRecipeClick = onRecipeClick,
+                            onUserClick = onUser
+                        )
+                    }
                 }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_instagram),
-                contentDescription = "Instagram icon",
-                modifier = Modifier
-                    .size(30.dp)
-                    .padding(end = 8.dp)
-            )
-            Text("See Instagram profile")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (viewModel.isRecipesLoading) {
-            Text("Loading user's recipes...")
-        } else {
-            RecipeListScreen(
-                recipes = viewModel.recipes!!,
-                screenType,
-                onRecipeClick = {
-                    print("do something with the recipe")
-                    //navController.navigate("recipeDetail")
+            } else {
+                if (viewModel.isFriendsLoading) {
+                    Text("Loading user's friends...")
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 500.dp)
+                    ) {
+                        UserListScreen(userList = viewModel.friends ?: emptyList())
+                    }
                 }
-            )
+            }
         }
-
     }
 }
 
 @Composable
-fun ProfileStat(label: String, count: Int) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = count.toString(), fontWeight = FontWeight.Bold, fontSize = 16.sp)
-        Text(text = label, fontSize = 14.sp)
+fun ProfileStat(label: String, count: Int, onClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .clickable { onClick() }
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = count.toString(), fontWeight = FontWeight.Bold, fontSize = 20.sp)
+        Text(text = label)
     }
 }
 

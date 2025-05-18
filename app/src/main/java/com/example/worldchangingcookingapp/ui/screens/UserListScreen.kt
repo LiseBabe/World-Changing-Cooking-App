@@ -29,7 +29,8 @@ import com.example.worldchangingcookingapp.models.User
 @Composable
 fun UserListScreen(
     userList: List<User>,
-    modifier: Modifier = Modifier) {
+    modifier: Modifier = Modifier
+){
     LazyColumn(modifier = modifier) {
         items(userList) { user ->
             UserItemCard(
