@@ -3,6 +3,7 @@ package com.example.worldchangingcookingapp
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -87,6 +88,9 @@ import com.example.worldchangingcookingapp.viewmodel.ProfileViewModel
 import com.example.worldchangingcookingapp.viewmodel.RecipeFormViewModel
 import kotlinx.coroutines.launch
 import com.example.worldchangingcookingapp.viewmodel.UserState
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.size
+
 
 
 @Composable
@@ -126,7 +130,7 @@ fun WCCookingApp(
 
         Surface (color = MaterialTheme.colorScheme.background) {
             Scaffold (
-                    topBar = { if (appViewModel.loggedIn && appBarType == AppBarType.REGULAR) TopBar(
+                    topBar = { if (appViewModel.loggedIn) TopBar(
                         navigateUp = { navController.navigateUp() },
                         canNavigateBack = canNavigateBack,
                         onSignOut = { appViewModel.signOut() }
@@ -185,17 +189,22 @@ fun Rail(
     navigateUp : () -> Unit,
     canNavigateBack: Boolean
 ) {
-    NavigationRail {
+    NavigationRail (
+        modifier = Modifier
+            .fillMaxHeight(),
+    ) {
+        Spacer(modifier = Modifier.weight(1f))
         val currentDestination = navController.currentBackStackEntryAsState().value?.destination
         if (canNavigateBack) {
-            IconButton(onClick = navigateUp) {
+            IconButton(onClick = navigateUp, modifier = Modifier.padding(8.dp)) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack,
-                    "Go Back")
+                    "Go Back",
+                    modifier = Modifier.size(28.dp))
             }
         }
         topLevelRoutes.forEach { topLevelRoute ->
             NavigationRailItem(
-                icon = { Icon(topLevelRoute.icon, topLevelRoute.label) },
+                icon = { Icon(topLevelRoute.icon, topLevelRoute.label, modifier = Modifier.size(30.dp)) },
                 selected = currentDestination?.hierarchy?.any { it.hasRoute(topLevelRoute.route::class) } == true,
                 onClick = {
                     navController.navigate(topLevelRoute.route) {
@@ -206,8 +215,10 @@ fun Rail(
                         restoreState = true
                     }
                 }
+
             )
         }
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
