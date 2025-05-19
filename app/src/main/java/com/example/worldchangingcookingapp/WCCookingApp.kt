@@ -91,8 +91,17 @@ import com.example.worldchangingcookingapp.viewmodel.UserState
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.size
 
-
-
+/*
+ * Main content of the application. Here the AppViewModel is created.
+ *
+ * General design was to delegate state to localized viewModels for each screen.
+ * This prevented the main AppViewModel from becoming overly large and complex.
+ * It only stores state need across screen.
+ *
+ * When navigating to a screen we create the relevant viewmodel and pass it the relevant
+ * state from the AppViewModel. This should improve the overall readability and maintainability
+ * of the codebase.
+ */
 @Composable
 fun WCCookingApp(
     navController : NavHostController = rememberNavController(),
@@ -106,6 +115,7 @@ fun WCCookingApp(
     val currentScreen = backStackEntry?.destination?.route
 
 
+    //Used to dynamically update layout of the app depending on windowSize
     val screenType: ScreenType = when (windowSize.widthSizeClass) {
         WindowWidthSizeClass.Compact -> {
             ScreenType.TALL
@@ -114,6 +124,8 @@ fun WCCookingApp(
             ScreenType.WIDE
         }
     }
+
+    //Used to dynamically update layout of the app depending on windowSize
     val appBarType: AppBarType = when (windowSize.heightSizeClass) {
         WindowHeightSizeClass.Compact -> {
             AppBarType.RAIL
@@ -123,6 +135,7 @@ fun WCCookingApp(
         }
     }
 
+    //Prevent the back button from appearing when on a "main" screen (one on the bottom nav bar).
     val canNavigateBack = navController.previousBackStackEntry != null && currentScreen != null &&
             !topLevelRoutes.any { route -> route.route::class.qualifiedName == currentScreen }
 
@@ -138,6 +151,8 @@ fun WCCookingApp(
                     bottomBar = { if (appViewModel.loggedIn && appBarType == AppBarType.REGULAR) { BottomNavBar(navController) } }
             ){
                 innerPadding ->
+                    //if the user is logged in display the app otherwise only
+                    //show the login screen (or loading).
                     when (appViewModel.user) {
                         is UserState.SignedIn ->
                             Row {
@@ -309,7 +324,6 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
                 appViewModel.api
             )
         )
-
         HomePageScreen(
             homePageViewModel = homePageViewModel,
             screenType = screenType,

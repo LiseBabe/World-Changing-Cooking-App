@@ -21,6 +21,10 @@ import java.util.Date
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+/*
+ * Converters to use all of the different enums and variables in the recipe object
+ * within the room database.
+ */
 class Converters {
     @TypeConverter
     fun fromCacheCategory(value: CacheCategory?): String? {
@@ -106,12 +110,12 @@ class Converters {
 
     @TypeConverter
     fun fromStringList(list: List<String>?): String? {
-        return list?.joinToString(separator = "||") // Use a delimiter unlikely to be in your strings
+        return list?.joinToString(separator = "||")
     }
 
     @TypeConverter
     fun toStringList(value: String?): List<String>? {
-        return value?.split("||")?.map { it } // Split by the same delimiter
+        return value?.split("||")?.map { it }
     }
 
     @TypeConverter

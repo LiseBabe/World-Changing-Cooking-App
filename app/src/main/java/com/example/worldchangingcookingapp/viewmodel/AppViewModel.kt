@@ -16,13 +16,20 @@ import com.example.worldchangingcookingapp.services.ApiService
 import com.example.worldchangingcookingapp.services.DatabaseService
 import kotlinx.coroutines.launch
 
+/*
+ * User State object. Used in most pages of the app to provide
+ * the user object.
+ */
 sealed interface UserState {
     data class SignedIn(val user: User) : UserState
     object SignedOut : UserState
     object Loading : UserState
     object Error : UserState
 }
-
+/*
+ * Handles all state that must be maintained globally throughout the app.
+ * Stores different services for delegation to lower scoped viewModels.
+ */
 class AppViewModel (
     val auth: AccountService,
     val api: ApiService,
@@ -40,6 +47,11 @@ class AppViewModel (
         signIn()
     }
 
+    /*
+     * Called at the start of the app to get the logged in users
+     * information. If this fails client will be redirected to
+     * login screen.
+     */
     fun signIn() {
         viewModelScope.launch {
             user = UserState.Loading

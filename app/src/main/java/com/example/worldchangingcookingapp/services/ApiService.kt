@@ -24,20 +24,36 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import kotlinx.serialization.json.Json
 
-
+/*
+ * Handles all firebase firestore API calls.
+ * Requires context to instance WorkManager.
+ */
 class ApiService(private val context: Context) {
     private val firestore = Firebase.firestore
 
+    /*
+     * Use in junction with the auth service to handle user logins.
+     * Returns a user object (username, profile pic, friends, recipes, etc)
+     * App cannot function without this user.
+     */
     suspend fun getUser(id: String): User? {
         return firestore.collection(USER_COLLECTION)
             .document(id).get()
             .await().toObject(User::class.java)
     }
 
+    /*
+     * Update the values of an existing user in the database.
+     * Will create a user if none found in database.
+     */
     suspend fun updateUser(user: User) {
         firestore.collection(USER_COLLECTION).document(user.id!!).set(user).await()
     }
 
+    /*
+     * Returns a list of users given a list of ids.
+     * Intended to be used with the users friend list to get all friends.
+     */
     suspend fun getFriends(ids: List<String>): List<User>? {
         val friends = mutableListOf<User>()
 
@@ -73,6 +89,7 @@ class ApiService(private val context: Context) {
         userRef.update(FRIENDS_FIELD, FieldValue.arrayRemove(id)).await()
     }
 
+    //Not yet implemented
     suspend fun deleteAccount(self: User) {
 
     }
@@ -82,10 +99,17 @@ class ApiService(private val context: Context) {
             .toObject(Recipe::class.java)
     }
 
+    /*
+     * Overload function from removed functionality
+     */
     suspend fun addRecipe(self: User, recipe: Recipe): String {
         return addRecipe(self.id!!, recipe)
     }
 
+    /*
+     * Adds a recipe to the database.
+     * Adds the recipe to the users recipe list.
+     */
     suspend fun addRecipe(userId: String, recipe: Recipe): String {
         val id = firestore.collection(RECIPE_COLLECTION).add(recipe).await().id
         //firestore.collection(RECIPE_COLLECTION).add(recipe).await()
@@ -95,6 +119,10 @@ class ApiService(private val context: Context) {
         return id
     }
 
+    /*
+     * Entry point for the add recipe worker.
+     * This calls the api addRecipe function in the worker.
+     */
     fun launchRecipeAddWorker(user: User, recipe: Recipe) {
         val recipeString = Json.encodeToString(recipe)
 
@@ -122,6 +150,10 @@ class ApiService(private val context: Context) {
         firestore.collection(RECIPE_COLLECTION).document(recipe.id).delete().await()
     }
 
+    /*
+     * Returns a list of recipes given a list ids.
+     * Intended for use with the user's recipe list.
+     */
     suspend fun getRecipes(ids: List<String>): List<Recipe>? {
         val recipes = mutableListOf<Recipe>()
 
@@ -145,6 +177,8 @@ class ApiService(private val context: Context) {
      * subsequent call (pass back in the returned lastVisible)
      *
      * Want to add friend only support but that is impractical atm.
+     *
+     * No longer used.
      */
     suspend fun loadFeed(self: User, lastVisible: DocumentSnapshot? = null):
             Pair<List<Recipe>, DocumentSnapshot?> {
@@ -174,7 +208,7 @@ class ApiService(private val context: Context) {
 
     /*
      * This returns a flow that automatically
-     * provides the 10 most recent recipes.
+     * provides the most recent recipes.
      */
     fun getFeed(self: User): Flow<List<Recipe>> = callbackFlow {
 
@@ -204,7 +238,12 @@ class ApiService(private val context: Context) {
 
     }
 
-
+    /*
+     * Provides a firebase id on the client side.
+     * Technically unnecessary but if we wanted to create better
+     * interoperability between room and firebase in the future would have
+     * been useful.
+     */
     fun randomRecipeId(): String {
         return firestore.collection(RECIPE_COLLECTION).document().id
     }
