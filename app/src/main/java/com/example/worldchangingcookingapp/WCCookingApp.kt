@@ -372,7 +372,6 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
         )
         ProfileScreen(
             profileViewModel,
-            navController,
             screenType,
             onEditClick = {
                 navController.navigate(EditProfile)

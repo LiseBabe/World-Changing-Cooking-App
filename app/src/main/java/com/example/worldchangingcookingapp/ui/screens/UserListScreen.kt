@@ -19,38 +19,39 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.worldchangingcookingapp.R
-import com.example.worldchangingcookingapp.database.Users
 import com.example.worldchangingcookingapp.models.User
 
+// Composable that displays a vertical list of users using LazyColumn
 @Composable
 fun UserListScreen(
-    userList: List<User>,
-    modifier: Modifier = Modifier
-){
+    userList: List<User>,          // List of users to display
+    modifier: Modifier = Modifier  // Optional modifier for customization
+) {
     LazyColumn(modifier = modifier) {
+        // For each user in the list, display a user item card
         items(userList) { user ->
             UserItemCard(
-                profileImageRes = R.drawable.profile_pic,
-                user = user,
-                label = "Followers")
+                profileImageRes = R.drawable.profile_pic, // Static placeholder image
+                user = user
+            )
         }
     }
 }
 
+// Composable that defines how each user is displayed in the list
 @Composable
 fun UserItemCard(
-    profileImageRes: Int,
-    user: User,
-    label: String = "Followers"
+    profileImageRes: Int,  // Resource ID for the profile image
+    user: User,            // User data to display
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(16.dp) // Padding around each item
     ) {
+        // Profile image (currently static)
         Image(
             painter = painterResource(id = profileImageRes),
             contentDescription = "Profile picture",
@@ -60,13 +61,30 @@ fun UserItemCard(
                 .clip(CircleShape)
         )
 
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(16.dp)) // Space between image and text
 
+        // User details: name, ID, follower count, recipe count
         Column {
-            Text(text = user.displayName, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Text(text = "@${user.id}", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(text = "${user.friends.size} $label", fontSize = 14.sp, fontWeight = FontWeight.Medium)
-            Text(text = "${user.recipes.size} recipes", fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            Text(
+                text = user.displayName,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "@${user.id}",
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "${user.friends.size} friends",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = "${user.recipes.size} recipes",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
         }
     }
 }
+

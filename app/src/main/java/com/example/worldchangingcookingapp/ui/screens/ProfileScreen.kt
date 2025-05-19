@@ -1,73 +1,55 @@
 package com.example.worldchangingcookingapp.ui.screens
 
-import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.worldchangingcookingapp.R
 import com.example.worldchangingcookingapp.contants.ScreenType
-import com.example.worldchangingcookingapp.data.FakeRecipeDatabase
-import com.example.worldchangingcookingapp.models.User
-import com.example.worldchangingcookingapp.database.Users
 import com.example.worldchangingcookingapp.models.Recipe
 import com.example.worldchangingcookingapp.viewmodel.ProfileViewModel
-import kotlinx.coroutines.launch
-import android.content.Intent
-import android.net.Uri
-import android.widget.Toast
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 
 
+/*
+ * Main Composable for displaying the user's profile screen.
+ * Shows user details, stats (recipes and friends), and allows navigation
+ * to edit profile or view Instagram. Also conditionally displays either
+ * the user's recipes or friends list based on viewModel state.
+ */
 @Composable
 fun ProfileScreen(
-    viewModel: ProfileViewModel,
-    navController: NavController,
-    screenType: ScreenType,
-    onEditClick: () -> Unit,
-    onRecipeClick: (Recipe) -> Unit,
-    onUser: (String) -> Unit
+    viewModel: ProfileViewModel,            // ViewModel managing user data and UI state
+    screenType: ScreenType,                 // Type of screen to adapt child components
+    onEditClick: () -> Unit,                // Callback when "Edit Profile" is clicked
+    onRecipeClick: (Recipe) -> Unit,        // Callback when a recipe is selected
+    onUser: (String) -> Unit                // Callback when a user is selected (from friends list)
 ) {
     val context = LocalContext.current
 
@@ -77,8 +59,10 @@ fun ProfileScreen(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Top section: profile image, stats, name, and buttons
         item {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                // Display user's profile picture
                 AsyncImage(
                     model = viewModel.user?.profilePicturePath,
                     contentDescription = "Profile picture",
@@ -90,6 +74,7 @@ fun ProfileScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
+                // Display recipe and friend statistics
                 Row(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     modifier = Modifier.fillMaxWidth()
@@ -98,20 +83,21 @@ fun ProfileScreen(
                         ProfileStat(
                             label = "Recipe(s)",
                             count = recipes.size,
-                            onClick = { viewModel.showListRecipe = true }
+                            onClick = { viewModel.showListRecipe = true } // Show recipe list
                         )
                     }
                     viewModel.user?.friends?.let { friends ->
                         ProfileStat(
                             label = "Friend(s)",
                             count = friends.size,
-                            onClick = { viewModel.showListRecipe = false }
+                            onClick = { viewModel.showListRecipe = false } // Show friends list
                         )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
+                // Display user's name
                 Text(
                     text = viewModel.user?.displayName ?: "No User Found",
                     fontWeight = FontWeight.Bold,
@@ -120,6 +106,7 @@ fun ProfileScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
+                // "Edit Profile" button
                 Button(
                     onClick = onEditClick,
                     modifier = Modifier.fillMaxWidth()
@@ -129,6 +116,7 @@ fun ProfileScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Instagram profile button
                 val instagramName = viewModel.user?.instagramName
                 Button(
                     onClick = {
@@ -160,6 +148,7 @@ fun ProfileScreen(
             }
         }
 
+        // Conditional content: recipe list or friend list based on showListRecipe flag
         item {
             if (viewModel.showListRecipe) {
                 if (viewModel.isRecipesLoading) {
@@ -195,6 +184,10 @@ fun ProfileScreen(
     }
 }
 
+/*
+ * Composable for displaying a single profile statistic (e.g., number of recipes or friends).
+ * Clicking on it triggers a callback that updates which list is displayed.
+ */
 @Composable
 fun ProfileStat(label: String, count: Int, onClick: () -> Unit) {
     Column(
@@ -207,5 +200,3 @@ fun ProfileStat(label: String, count: Int, onClick: () -> Unit) {
         Text(text = label)
     }
 }
-
-
