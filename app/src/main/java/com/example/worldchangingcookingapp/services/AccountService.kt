@@ -5,6 +5,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.tasks.await
 
+
+/*
+ * Manages the firebase authentication process
+*/
 class AccountService {
     private val auth: FirebaseAuth = Firebase.auth
 
@@ -14,6 +18,10 @@ class AccountService {
     val hasUser: Boolean
         get() = auth.currentUser != null
 
+    /*
+     * Login a user given an email and password
+     * Throws an error if bad login attempt
+     */
     suspend fun authenticate(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password).await()
     }
@@ -22,6 +30,10 @@ class AccountService {
         auth.sendPasswordResetEmail(email).await()
     }
 
+    /*
+     * Create an account with given email and password
+     * Throws an error if bad create attempt (email already used)
+     */
     suspend fun createAccount(email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password).await()
     }
@@ -30,6 +42,9 @@ class AccountService {
         auth.currentUser!!.delete().await()
     }
 
+    /*
+     * Signs out the user
+     */
     fun signOut() {
         auth.signOut()
     }

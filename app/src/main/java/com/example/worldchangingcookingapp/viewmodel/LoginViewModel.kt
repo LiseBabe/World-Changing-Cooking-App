@@ -14,6 +14,11 @@ import com.example.worldchangingcookingapp.services.ApiService
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 
+/*
+ * Manager all the state of the login and create account process.
+ * Requires the authService and the apiService to preform relevant
+ * account operations on with the database.
+ */
 class LoginViewModel (private val auth : AccountService, private val api : ApiService) : ViewModel() {
     var username by mutableStateOf("")
     var password by mutableStateOf("")
@@ -23,6 +28,11 @@ class LoginViewModel (private val auth : AccountService, private val api : ApiSe
     var reload by mutableStateOf(false)
     var hasError by mutableStateOf(false)
 
+    /*
+     * Try's to login a user with the input email and password.
+     * If login fails update state.
+     * If login succeeds trigger a reload to send the user to home page.
+     */
     fun login() {
         if (!Patterns.EMAIL_ADDRESS.matcher(username).matches()) {
             hasError = true
@@ -40,6 +50,9 @@ class LoginViewModel (private val auth : AccountService, private val api : ApiSe
         }
     }
 
+    /*
+     * Functionally the same as login but try's to create a new account.
+     */
     fun createAccount() {
         if (!Patterns.EMAIL_ADDRESS.matcher(username).matches()) {
             hasError = true

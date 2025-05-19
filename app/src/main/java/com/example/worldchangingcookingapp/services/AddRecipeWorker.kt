@@ -10,6 +10,12 @@ import com.example.worldchangingcookingapp.models.Recipe
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
+
+/*
+ * Worker responsible for publishing new recipes.
+ * Will wait to publish until internet connection is established.
+ * Returns the publish recipe's id as outputData.
+ */
 class AddRecipeWorker (ctx: Context, params: WorkerParameters, private val api: ApiService):
  CoroutineWorker(ctx, params) {
 

@@ -27,6 +27,12 @@ sealed class PostResult {
     data class Error(val message : String) : PostResult()
 }
 
+/*
+ * Handles all state relevant to recipe creation.
+ * Requires the ApiService to publish recipes.
+ * Requires the DatabaseService to save drafts.
+ * Takes a recipe as an argument so you can edit saved recipes.
+ */
 class RecipeFormViewModel (
     userState: UserState,
     val api: ApiService,
@@ -60,6 +66,11 @@ class RecipeFormViewModel (
         return recipe!!
     }
 
+    /*
+     * Attempts to publish a recipe to the api.
+     * Requires that the form be completely filled out.
+     * Creates a popup dialog to alert user if the process fails/succeeds.
+     */
     fun publishRecipe() {
         form.validate()
         if(!form.isValid)  {
@@ -83,12 +94,18 @@ class RecipeFormViewModel (
         }
     }
 
+    /*
+     * Saves a recipe to the local cache
+     */
     fun saveRecipe(recipe: Recipe) {
         viewModelScope.launch {
             db.insertRecipe(recipe)
         }
     }
 
+    /*
+     * Deletes a recipe from local cache
+     */
     fun deleteFromCache(id: String) {
         viewModelScope.launch {
             db.deleteRecipe(id)
