@@ -13,8 +13,14 @@ import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.toObjects
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import kotlinx.serialization.json.Json
 
@@ -140,7 +146,7 @@ class ApiService(private val context: Context) {
      *
      * Want to add friend only support but that is impractical atm.
      */
-    suspend fun getFeed(self: User, lastVisible: DocumentSnapshot? = null):
+    suspend fun loadFeed(self: User, lastVisible: DocumentSnapshot? = null):
             Pair<List<Recipe>, DocumentSnapshot?> {
         var query = firestore.collection(RECIPE_COLLECTION)
             .orderBy("publicationDate", Query.Direction.DESCENDING)
@@ -165,6 +171,40 @@ class ApiService(private val context: Context) {
         }
         return recipes to newLastVisible
     }
+
+    /*
+     * This returns a flow that automatically
+     * provides the 10 most recent recipes.
+     */
+    fun getFeed(self: User): Flow<List<Recipe>> = callbackFlow {
+
+        val query = firestore.collection(RECIPE_COLLECTION)
+            .orderBy("publicationDate", Query.Direction.DESCENDING)
+
+        val subscription = query.addSnapshotListener { snapshot: QuerySnapshot?, e: FirebaseFirestoreException? ->
+            if (e != null) {
+                close(e)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null) {
+                val recipes = snapshot.documents.mapNotNull {
+                    doc -> val recipe = doc.toObject(Recipe::class.java)
+                    if (recipe != null && recipe.authorId != self.id) recipe.copy(id = doc.id) else null
+                }
+                trySend(recipes).isSuccess
+            } else {
+                trySend(emptyList()).isSuccess
+            }
+        }
+
+        awaitClose {
+            subscription.remove()
+        }
+
+    }
+
+
     fun randomRecipeId(): String {
         return firestore.collection(RECIPE_COLLECTION).document().id
     }

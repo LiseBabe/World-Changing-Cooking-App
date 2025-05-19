@@ -78,7 +78,6 @@ fun EditProfileScreen(userState: UserState, onSave: (User) -> Unit) {
         else -> null
     }
     var username by remember { mutableStateOf(user?.displayName?: "example") }
-    var email by remember { mutableStateOf(user?.email ?: "example@gmail.com") }
     var profilePicturePath by remember { mutableStateOf(user?.profilePicturePath?: "") }
     var showImageSelector by remember { mutableStateOf(false) }
     var showUsernameSelector by remember { mutableStateOf(false) }
@@ -129,7 +128,7 @@ fun EditProfileScreen(userState: UserState, onSave: (User) -> Unit) {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-/////
+
         Text(text = "Current Instagram Pseudo :")
         Text(text =  instagramName)
 
@@ -141,7 +140,7 @@ fun EditProfileScreen(userState: UserState, onSave: (User) -> Unit) {
         ){
             Text("Change Instagram Pseudo")
         }
-////
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
@@ -300,7 +299,7 @@ fun StringSelectorPopup(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = { onSave(text) }) {
-                        Text("Save")
+                        Text("Ok")
                     }
                 }
             }
@@ -353,7 +352,7 @@ fun StringSelectorPopupInstagram(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = { onSave(text) }) {
-                        Text("Save")
+                        Text("Ok")
                     }
                 }
             }

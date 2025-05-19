@@ -3,6 +3,7 @@ package com.example.worldchangingcookingapp
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -64,7 +65,9 @@ import com.example.worldchangingcookingapp.contants.Login
 import com.example.worldchangingcookingapp.contants.Profile
 import com.example.worldchangingcookingapp.contants.ScreenType
 import com.example.worldchangingcookingapp.contants.ViewRecipe
+import com.example.worldchangingcookingapp.contants.ViewUser
 import com.example.worldchangingcookingapp.contants.topLevelRoutes
+import com.example.worldchangingcookingapp.models.Recipe
 import com.example.worldchangingcookingapp.models.User
 import com.example.worldchangingcookingapp.services.AccountService
 import com.example.worldchangingcookingapp.services.ApiService
@@ -75,6 +78,7 @@ import com.example.worldchangingcookingapp.ui.screens.LoginScreen
 import com.example.worldchangingcookingapp.ui.screens.ProfileScreen
 import com.example.worldchangingcookingapp.ui.screens.HomePageScreen
 import com.example.worldchangingcookingapp.ui.screens.ViewRecipeScreen
+import com.example.worldchangingcookingapp.ui.screens.ViewUserScreen
 import com.example.worldchangingcookingapp.ui.theme.WorldChangingCookingAppTheme
 import com.example.worldchangingcookingapp.viewmodel.AppViewModel
 import com.example.worldchangingcookingapp.viewmodel.DraftsViewModel
@@ -84,6 +88,9 @@ import com.example.worldchangingcookingapp.viewmodel.ProfileViewModel
 import com.example.worldchangingcookingapp.viewmodel.RecipeFormViewModel
 import kotlinx.coroutines.launch
 import com.example.worldchangingcookingapp.viewmodel.UserState
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.size
+
 
 
 @Composable
@@ -123,7 +130,7 @@ fun WCCookingApp(
 
         Surface (color = MaterialTheme.colorScheme.background) {
             Scaffold (
-                    topBar = { if (appViewModel.loggedIn && appBarType == AppBarType.REGULAR) TopBar(
+                    topBar = { if (appViewModel.loggedIn) TopBar(
                         navigateUp = { navController.navigateUp() },
                         canNavigateBack = canNavigateBack,
                         onSignOut = { appViewModel.signOut() }
@@ -182,17 +189,22 @@ fun Rail(
     navigateUp : () -> Unit,
     canNavigateBack: Boolean
 ) {
-    NavigationRail {
+    NavigationRail (
+        modifier = Modifier
+            .fillMaxHeight(),
+    ) {
+        Spacer(modifier = Modifier.weight(1f))
         val currentDestination = navController.currentBackStackEntryAsState().value?.destination
         if (canNavigateBack) {
-            IconButton(onClick = navigateUp) {
+            IconButton(onClick = navigateUp, modifier = Modifier.padding(8.dp)) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack,
-                    "Go Back")
+                    "Go Back",
+                    modifier = Modifier.size(28.dp))
             }
         }
         topLevelRoutes.forEach { topLevelRoute ->
             NavigationRailItem(
-                icon = { Icon(topLevelRoute.icon, topLevelRoute.label) },
+                icon = { Icon(topLevelRoute.icon, topLevelRoute.label, modifier = Modifier.size(30.dp)) },
                 selected = currentDestination?.hierarchy?.any { it.hasRoute(topLevelRoute.route::class) } == true,
                 onClick = {
                     navController.navigate(topLevelRoute.route) {
@@ -203,8 +215,10 @@ fun Rail(
                         restoreState = true
                     }
                 }
+
             )
         }
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
@@ -298,11 +312,16 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
 
         HomePageScreen(
             homePageViewModel = homePageViewModel,
-            screenType = screenType
-        ) {
+            screenType = screenType,
+            onSelect = {
                 appViewModel.selectedRecipe = it
                 navController.navigate(ViewRecipe)
-        }
+            },
+            onUser = {
+                appViewModel.setSelectedUser(it)
+                navController.navigate(ViewUser)
+            }
+        )
     }
     composable<Drafts> {
         val viewModel: DraftsViewModel = viewModel(
@@ -325,6 +344,7 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
             )
         )
         CreateRecipeScreen(viewModel) {
+            appViewModel.refreshUser()
             navController.navigate(Drafts)
         }
     }
@@ -342,6 +362,14 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
             screenType,
             onEditClick = {
                 navController.navigate(EditProfile)
+            },
+            onRecipeClick = {
+                appViewModel.selectedRecipe = it
+                navController.navigate(ViewRecipe)
+            },
+            onUser = {
+                appViewModel.setSelectedUser(it)
+                navController.navigate(ViewUser)
             }
         )
     }
@@ -366,6 +394,27 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
             }
             else -> {
                 ViewRecipeScreen(appViewModel.selectedRecipe!!)
+            }
+        }
+    }
+    composable<ViewUser> {
+        when {
+            appViewModel.selectedUser == null -> {
+                Text("No User Found")
+            }
+            else -> {
+                ViewUserScreen(
+                    user = appViewModel.selectedUser!!,
+                    isFriend = appViewModel.isFriend(appViewModel.selectedUser!!.id!!),
+                    onAddFriendClick = {
+                        appViewModel.addFriend(it.id!!)
+                        appViewModel.refreshUser()
+                    },
+                    onDeleteFriendClick = {
+                        appViewModel.removeFriend(it.id!!)
+                        appViewModel.refreshUser()
+                    }
+                )
             }
         }
     }

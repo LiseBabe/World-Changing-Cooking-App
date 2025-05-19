@@ -34,6 +34,8 @@ class AppViewModel (
 
     var selectedRecipe by mutableStateOf<Recipe?>(null)
 
+    var selectedUser by mutableStateOf<User?>(null)
+
     init {
         signIn()
     }
@@ -55,6 +57,57 @@ class AppViewModel (
             auth.signOut()
             loggedIn = auth.hasUser
             user = UserState.SignedOut
+        }
+    }
+
+    fun setSelectedUser(id: String){
+        viewModelScope.launch {
+            selectedUser =
+                api.getUser(id)
+        }
+    }
+
+    fun addFriend(id: String){
+        val userCopy = user
+        when (userCopy) {
+            is UserState.SignedIn -> {
+                viewModelScope.launch {
+                    api.addFriend(userCopy.user,id)
+                }
+            }
+            else -> null
+        }
+    }
+
+    fun removeFriend(id: String){
+        val userCopy = user
+        when (userCopy) {
+            is UserState.SignedIn -> {
+                viewModelScope.launch {
+                    api.removeFriend(userCopy.user,id)
+                }
+            }
+            else -> null
+        }
+    }
+
+    fun isFriend(id: String): Boolean {
+        return when (val userCopy = user) {
+            is UserState.SignedIn -> {
+                userCopy.user.friends.contains(id) ?: false
+            }
+            else -> false
+        }
+    }
+
+    fun refreshUser() {
+        viewModelScope.launch {
+            user = UserState.Loading
+            user = try {
+                UserState.SignedIn(api.getUser(auth.currentUserId)!!)
+            } catch (e: Exception) {
+                UserState.Error
+            }
         }
     }
 

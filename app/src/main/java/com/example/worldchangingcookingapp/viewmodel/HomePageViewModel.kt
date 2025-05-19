@@ -1,5 +1,6 @@
 package com.example.worldchangingcookingapp.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
@@ -13,6 +14,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.example.worldchangingcookingapp.models.User
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.WhileSubscribed
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.stateIn
 
 
 class HomePageViewModel(
@@ -28,13 +33,23 @@ class HomePageViewModel(
     }
 
     init {
-        loadFeed(user!!)
+//        loadFeed(user!!)
     }
 
     // recipe list
     //private val _recipes = MutableStateFlow<List<Recipe>>(FakeRecipeDatabase.recipes)
-    private val _recipes = MutableStateFlow<List<Recipe>>(emptyList())
-    val recipes: StateFlow<List<Recipe>> = _recipes.asStateFlow()
+    //private val _recipes = MutableStateFlow<List<Recipe>>(emptyList())
+    //val recipes: StateFlow<List<Recipe>> = _recipes.asStateFlow()
+    val recipes: StateFlow<List<Recipe>> = api.getFeed(user!!)
+        .catch { error ->
+            Log.e("HomePageViewModel", "Flow Error: $error.message", error)
+            emit(emptyList())
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     private var lastVisible: DocumentSnapshot? = null
 
@@ -47,9 +62,9 @@ class HomePageViewModel(
     fun loadFeed(user: User) {
         viewModelScope.launch {
             try {
-                val (fetchedRecipes, lastDoc) = api.getFeed(user, lastVisible)
-                _recipes.value = fetchedRecipes
-                lastVisible = lastDoc
+//                val (fetchedRecipes, lastDoc) = api.getFeed(user, lastVisible)
+//                _recipes.value = fetchedRecipes
+//                lastVisible = lastDoc
             } catch (e: Exception) {
                 e.printStackTrace()
                 _errorMessage.value = "Error when request the recipe"

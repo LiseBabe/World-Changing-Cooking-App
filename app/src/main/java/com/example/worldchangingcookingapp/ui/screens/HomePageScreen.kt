@@ -14,12 +14,13 @@ import androidx.navigation.NavController
 import com.example.worldchangingcookingapp.contants.ScreenType
 import com.example.worldchangingcookingapp.contants.ViewRecipe
 import com.example.worldchangingcookingapp.models.Recipe
+import com.example.worldchangingcookingapp.models.User
 import com.example.worldchangingcookingapp.viewmodel.AppViewModel
 import com.example.worldchangingcookingapp.viewmodel.HomePageViewModel
 import com.example.worldchangingcookingapp.viewmodel.UserState
 
 @Composable
-fun HomePageScreen(homePageViewModel: HomePageViewModel, screenType: ScreenType, onSelect: (Recipe) -> Unit) {
+fun HomePageScreen(homePageViewModel: HomePageViewModel, screenType: ScreenType, onSelect: (Recipe) -> Unit, onUser: (String) -> Unit) {
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -32,7 +33,8 @@ fun HomePageScreen(homePageViewModel: HomePageViewModel, screenType: ScreenType,
         RecipeListScreen(
             recipes = homePageViewModel.recipes.collectAsState().value,
             screenType = screenType,
-            onRecipeClick = onSelect
+            onRecipeClick = onSelect,
+            onUserClick = onUser
         )
     }
 }
