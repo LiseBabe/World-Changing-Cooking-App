@@ -79,12 +79,35 @@ class AppViewModel (
         }
     }
 
+    fun removeFriend(id: String){
+        val userCopy = user
+        when (userCopy) {
+            is UserState.SignedIn -> {
+                viewModelScope.launch {
+                    api.removeFriend(userCopy.user,id)
+                }
+            }
+            else -> null
+        }
+    }
+
     fun isFriend(id: String): Boolean {
         return when (val userCopy = user) {
             is UserState.SignedIn -> {
                 userCopy.user.friends.contains(id) ?: false
             }
             else -> false
+        }
+    }
+
+    fun refreshUser() {
+        viewModelScope.launch {
+            user = UserState.Loading
+            user = try {
+                UserState.SignedIn(api.getUser(auth.currentUserId)!!)
+            } catch (e: Exception) {
+                UserState.Error
+            }
         }
     }
 

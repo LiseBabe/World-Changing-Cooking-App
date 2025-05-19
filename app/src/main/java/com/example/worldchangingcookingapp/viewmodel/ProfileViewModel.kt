@@ -29,7 +29,7 @@ class ProfileViewModel(
     apiService : ApiService,
     databaseService: DatabaseService
 ) : ViewModel() {
-    val user = when (userState) {
+    var user = when (userState) {
         is UserState.SignedIn -> {
             userState.user
         }

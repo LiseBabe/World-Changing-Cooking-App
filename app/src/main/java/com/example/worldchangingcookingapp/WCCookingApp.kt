@@ -344,6 +344,7 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
             )
         )
         CreateRecipeScreen(viewModel) {
+            appViewModel.refreshUser()
             navController.navigate(Drafts)
         }
     }
@@ -403,9 +404,16 @@ fun NavGraphBuilder.appGraph(navController : NavController, appViewModel : AppVi
             }
             else -> {
                 ViewUserScreen(
-                    appViewModel.selectedUser!!,
-                    appViewModel.isFriend(appViewModel.selectedUser!!.id!!),
-                    {appViewModel.addFriend(it.id!!)}
+                    user = appViewModel.selectedUser!!,
+                    isFriend = appViewModel.isFriend(appViewModel.selectedUser!!.id!!),
+                    onAddFriendClick = {
+                        appViewModel.addFriend(it.id!!)
+                        appViewModel.refreshUser()
+                    },
+                    onDeleteFriendClick = {
+                        appViewModel.removeFriend(it.id!!)
+                        appViewModel.refreshUser()
+                    }
                 )
             }
         }

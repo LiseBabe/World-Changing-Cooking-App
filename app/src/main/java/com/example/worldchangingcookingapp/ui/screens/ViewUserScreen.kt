@@ -1,5 +1,6 @@
 package com.example.worldchangingcookingapp.ui.screens
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +13,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,14 +31,16 @@ import com.example.worldchangingcookingapp.R
 import com.example.worldchangingcookingapp.models.User
 
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun ViewUserScreen(
     user: User,
     isFriend: Boolean = false,
-    onAddFriendClick: (User) -> Unit
+    onAddFriendClick: (User) -> Unit,
+    onDeleteFriendClick: (User) -> Unit
 ) {
     val context = LocalContext.current
-
+    var displayButton = mutableStateOf(isFriend)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -63,15 +70,17 @@ fun ViewUserScreen(
             onClick = {
                 if (!isFriend) {
                     onAddFriendClick(user)
+                    displayButton.value = true
+                } else {
+                    onDeleteFriendClick(user)
+                    displayButton.value = true
                 }
             },
-            enabled = !isFriend,
+            enabled = true,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(if (isFriend) "Already Friends" else "Add Friend")
+            Text(if (displayButton.value) "Unfollow" else "Follow")
         }
-
-        // TODO : add user recipes list
 
     }
 }
